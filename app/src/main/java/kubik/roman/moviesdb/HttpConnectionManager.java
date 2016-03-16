@@ -120,7 +120,10 @@ public class HttpConnectionManager {
 
 
     public String getRequest(String requested, String... params) throws ExecutionException, InterruptedException {
-        String param = REQUESTED_URL + "\\" + requested + "?" + API_KEY + Arrays.toString(params);
+        String param = REQUESTED_URL + "/" + requested + "?" + API_KEY;
+        for (String str: params) {
+            param = param + "&" + str;
+        }
         return new DownloadDataAsyncTask().execute(param, GET).get();
     }
 

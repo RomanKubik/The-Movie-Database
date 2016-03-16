@@ -34,24 +34,31 @@ public class SplashActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        mHttpManager = new HttpConnectionManager(this);
-
-        mToken = new Token();
-
         try {
-            String jsonStr = mHttpManager.getRequest(REQUESTED,"");
-            if (jsonStr.equals(mHttpManager.NOT_CONNECTED_MESSAGE)) {
-                Toast.makeText(this,mHttpManager.NOT_CONNECTED_MESSAGE,Toast.LENGTH_SHORT).show();
-            } else if (jsonStr.equals(mHttpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
-                Toast.makeText(this,mHttpManager.NOT_CONNECTED_MESSAGE,Toast.LENGTH_SHORT).show();
-            } else if (jsonStr.equals(mHttpManager.FALSE_URL_MESSAGE)){
-                Toast.makeText(this,mHttpManager.NOT_CONNECTED_MESSAGE,Toast.LENGTH_SHORT).show();
-            } else {
-                mToken.setTokenFromJsonStr(jsonStr);
-            }
+            sendTokenRequest();
         } catch (ExecutionException | InterruptedException | JSONException e) {
             Log.d("onResume SplashActivity", e.toString());
         }
 
     }
+
+    public void sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
+        mHttpManager = new HttpConnectionManager(this);
+
+        mToken = new Token();
+
+        String jsonStr = mHttpManager.getRequest(REQUESTED,"");
+        if (jsonStr.equals(mHttpManager.NOT_CONNECTED_MESSAGE)) {
+            Toast.makeText(this,mHttpManager.NOT_CONNECTED_MESSAGE,Toast.LENGTH_LONG).show();
+        } else if (jsonStr.equals(mHttpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
+            Toast.makeText(this,mHttpManager.FALSE_REQUEST_TYPE_MESSAGE,Toast.LENGTH_LONG).show();
+        } else if (jsonStr.equals(mHttpManager.FALSE_URL_MESSAGE)){
+            Toast.makeText(this,mHttpManager.FALSE_URL_MESSAGE,Toast.LENGTH_LONG).show();
+        } else {
+            mToken.setTokenFromJsonStr(jsonStr);
+        }
+
+
+    }
+
 }
