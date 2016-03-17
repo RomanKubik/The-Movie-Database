@@ -11,15 +11,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-import kubik.roman.moviesdb.Models.Token;
 
 /**
  * Class for working with HttpUrlConnection
+ * Sending request with method GET, POST, DELETE
+ * Using api key
+ * Requested URL=http://api.themoviedb.org/3/
  */
 public class HttpConnectionManager {
 
@@ -37,24 +37,21 @@ public class HttpConnectionManager {
     private Context mContext;
 
     public HttpConnectionManager(Context context) {
-
         mContext = context;
     }
 
+    //Checking network connection
     private boolean isConnected() {
-
         ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService
                 (Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
+        return networkInfo != null && networkInfo.isConnected();
     }
 
+    //Download data using new thread
     private class DownloadDataAsyncTask extends AsyncTask<String, Void, String> {
 
+        //Needed params[0]- path, param[1]- RequestMethod
         @Override
         protected String doInBackground(String... params) {
 
@@ -85,6 +82,7 @@ public class HttpConnectionManager {
             return null;
         }
 
+        //Downloading data using GET method
         private String downloadDataGet(String path) throws IOException {
             InputStream iStream = null;
             try {
@@ -102,8 +100,8 @@ public class HttpConnectionManager {
             }
         }
 
+        //Converting Input stream to String
         private String convertIStreamToString(InputStream iStream) throws IOException {
-
             Reader reader = null;
             String thisLine = "";
             reader = new InputStreamReader(iStream, "UTF-8");
@@ -118,7 +116,7 @@ public class HttpConnectionManager {
     }
 
 
-
+    //Creating request path(URL)
     public String getRequest(String requested, String... params) throws ExecutionException, InterruptedException {
         String param = REQUESTED_URL + "/" + requested + "?" + API_KEY;
         for (String str: params) {
@@ -126,6 +124,5 @@ public class HttpConnectionManager {
         }
         return new DownloadDataAsyncTask().execute(param, GET).get();
     }
-
 
 }

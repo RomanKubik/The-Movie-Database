@@ -3,10 +3,15 @@ package kubik.roman.moviesdb.Models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Class for representation of JSON authentication request
  */
-public class Token {
+public class Token implements Serializable{
+
+    //Requested URL
+    public final String REQUESTED = "/authentication/token/new";
 
     public static final String EXPIRES_AT = "expires_at";
     public static final String REQUEST_TOKEN = "request_token";
