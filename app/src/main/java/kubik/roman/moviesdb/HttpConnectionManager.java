@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 public class HttpConnectionManager {
 
     public static final String API_KEY = "api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-    public static final String REQUESTED_URL = "http://api.themoviedb.org/3/";
+    public static final String REQUESTED_URL = "http://api.themoviedb.org/3";
 
     public static final String GET ="GET";
     public static final String POST = "POST";
@@ -92,7 +93,7 @@ public class HttpConnectionManager {
                 connection.setDoInput(true);
                 connection.connect();
                 iStream = connection.getInputStream();
-                return convertIStreamToString(iStream);
+                return convertInStreamToString(iStream);
             } finally {
                 if (iStream != null) {
                     iStream.close();
@@ -101,7 +102,7 @@ public class HttpConnectionManager {
         }
 
         //Converting Input stream to String
-        private String convertIStreamToString(InputStream iStream) throws IOException {
+        private String convertInStreamToString(InputStream iStream) throws IOException {
             Reader reader = null;
             String thisLine = "";
             reader = new InputStreamReader(iStream, "UTF-8");
@@ -122,6 +123,7 @@ public class HttpConnectionManager {
         for (String str: params) {
             param = param + "&" + str;
         }
+        Log.d("Requested url = ", param);
         return new DownloadDataAsyncTask().execute(param, GET).get();
     }
 

@@ -11,37 +11,37 @@ import java.io.Serializable;
 public class Token implements Serializable{
 
     //Requested URL
-    public final String REQUESTED = "/authentication/token/new";
+    public final String REQUESTED = "authentication/token/new";
 
+    public final String REQUEST_TOKEN = "request_token";
     public static final String EXPIRES_AT = "expires_at";
-    public static final String REQUEST_TOKEN = "request_token";
     public static final String SUCCESS = "success";
 
     private String mExpiresAt;
     private String mRequestedToken;
     private boolean mSuccess;
 
-    public String getmExpiresAt() {
+    public String getExpiresAt() {
         return mExpiresAt;
     }
 
-    public void setmExpiresAt(String expiresAt) {
+    public void setExpiresAt(String expiresAt) {
         this.mExpiresAt = expiresAt;
     }
 
-    public String getmRequestedToken() {
+    public String getRequestedToken() {
         return mRequestedToken;
     }
 
-    public void setmRequestedToken(String requestedToken) {
+    public void setRequestedToken(String requestedToken) {
         this.mRequestedToken = requestedToken;
     }
 
-    public boolean ismSuccess() {
+    public boolean isSuccess() {
         return mSuccess;
     }
 
-    public void setmSuccess(boolean success) {
+    public void setSuccess(boolean success) {
         this.mSuccess = success;
     }
 

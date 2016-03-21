@@ -9,10 +9,7 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import kubik.roman.moviesdb.HttpConnectionManager;
 import kubik.roman.moviesdb.Models.Token;
@@ -50,42 +47,31 @@ public class SplashActivity extends Activity {
                     Log.d("onResume SplashActivity", e.toString());
                 }
             }
-            
-            public void onFinish() {
 
+            public void onFinish() {
                 intent.putExtra("Token", mToken);
                 startActivity(intent);
+                finish();
             }
         }.start();
 
-
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        this.finish();
     }
 
     //Send request to get token using HttpConnectionManager
-    public void sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
+    public boolean sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
         HttpConnectionManager httpManager = new HttpConnectionManager(this);
 
         mToken = new Token();
 
         String jsonStr = httpManager.getRequest(mToken.REQUESTED, "");
         //Checking reply string
-        if (jsonStr.equals(httpManager.NOT_CONNECTED_MESSAGE)) {
-            Toast.makeText(this, httpManager.NOT_CONNECTED_MESSAGE,Toast.LENGTH_LONG).show();
-        } else if (jsonStr.equals(httpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
-            Toast.makeText(this, httpManager.FALSE_REQUEST_TYPE_MESSAGE,Toast.LENGTH_LONG).show();
-        } else if (jsonStr.equals(httpManager.FALSE_URL_MESSAGE)){
-            Toast.makeText(this, httpManager.FALSE_URL_MESSAGE,Toast.LENGTH_LONG).show();
+        if (jsonStr.equals(httpManager.NOT_CONNECTED_MESSAGE) || jsonStr.equals(httpManager.FALSE_URL_MESSAGE) || jsonStr.equals(httpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
+            Toast.makeText(this, jsonStr,Toast.LENGTH_LONG).show();
+            return false;
         } else {
             mToken.setTokenFromJsonStr(jsonStr);
             Log.d("SplashActivity", "Token was gotten");
+            return true;
         }
     }
 
