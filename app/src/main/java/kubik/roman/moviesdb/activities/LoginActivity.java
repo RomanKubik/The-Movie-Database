@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutionException;
 
 import kubik.roman.moviesdb.HttpConnectionManager;
-import kubik.roman.moviesdb.Models.Token;
+import kubik.roman.moviesdb.models.Token;
 import kubik.roman.moviesdb.R;
 
 /**
@@ -35,18 +35,15 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     public static final String SESSION_ID = "session_id";
     public static final String GUEST_SESSION_ID = "guest_session_id";
 
-    public final String ID = "id";
-    public final String SESSION_TYPE = "session_type";
+    public static final String ID = "id";
+    public static final String SESSION_TYPE = "session_type";
 
 
     private Token mToken;
     private HttpConnectionManager httpManager;
-    private String mSessionId;
 
     private EditText mEtLogin;
     private EditText mEtPassword;
-    private Button mBtnLogin;
-    private Button mBtnContinue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +61,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         mEtLogin = (EditText)findViewById(R.id.etLogin);
         mEtPassword = (EditText)findViewById(R.id.etPassword);
 
-        mBtnLogin = (Button)findViewById(R.id.btnLogin);
-        mBtnContinue = (Button)findViewById(R.id.btnContinue);
+        Button mBtnLogin = (Button) findViewById(R.id.btnLogin);
+        Button mBtnContinue = (Button) findViewById(R.id.btnContinue);
 
         mBtnLogin.setOnClickListener(this);
         mBtnContinue.setOnClickListener(this);
@@ -93,7 +90,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
     private void login() throws InterruptedException, ExecutionException, JSONException {
         if (sendLoginRequest()) {
-            mSessionId = createSessionId();
+            String mSessionId = createSessionId();
             startMainActivity(mSessionId, SESSION_ID);
         } else {
             Toast.makeText(this, R.string.invalidAuthentication, Toast.LENGTH_LONG).show();

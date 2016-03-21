@@ -1,4 +1,4 @@
-package kubik.roman.moviesdb.Models;
+package kubik.roman.moviesdb.models;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -12,7 +12,7 @@ import org.json.JSONException;
 import java.util.concurrent.ExecutionException;
 
 import kubik.roman.moviesdb.HttpConnectionManager;
-import kubik.roman.moviesdb.Models.Token;
+import kubik.roman.moviesdb.models.Token;
 import kubik.roman.moviesdb.R;
 
 /**
