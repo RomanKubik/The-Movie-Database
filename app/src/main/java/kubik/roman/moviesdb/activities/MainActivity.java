@@ -6,18 +6,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
 import java.util.concurrent.ExecutionException;
 
 import kubik.roman.moviesdb.HttpConnectionManager;
-import kubik.roman.moviesdb.adapters.MovieTitleListAdapter;
+import kubik.roman.moviesdb.adapters.MovieListAdapter;
 import kubik.roman.moviesdb.models.Movie;
 import kubik.roman.moviesdb.models.MoviesList;
 import kubik.roman.moviesdb.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements HttpConnectionManager.OnRespondListener, AdapterView.OnItemClickListener {
 
     private String mSessionId;
     private String mSessionType;
@@ -44,28 +45,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showList() {
-        MovieTitleListAdapter adapter = new MovieTitleListAdapter(mMoviesList, this);
+        MovieListAdapter adapter = new MovieListAdapter(mMoviesList, this);
         ListView listView = (ListView) findViewById(R.id.lvTitle);
         assert listView != null;
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("ListItem position", String.valueOf(position));
-            }
-        });
+        listView.setOnItemClickListener(this);
         listView.setAdapter(adapter);
     }
 
     private void ShowMoviesList() throws ExecutionException, InterruptedException, JSONException {
         mHttpManager = new HttpConnectionManager(this);
+        mHttpManager.setOnRespondListener(this);
+
         mMoviesList = new MoviesList();
 
-        String jsonStr = mHttpManager.getRequest(mMoviesList.REQUESTED, "");
+        mHttpManager.GET(mMoviesList.REQUESTED, "");
 
-        mMoviesList.setMoviesListFromJson(jsonStr);
+    }
+
+    @Override
+    public void onRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException {
+        mMoviesList.setMoviesListFromJson(respond);
+
 
         for(Movie movie: mMoviesList.getMoviesList()) {
             Log.d("Movie title: ", movie.getTitle());
         }
+    }
+
+    @Override
+    public void onError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Movie movie = (Movie) parent.getItemAtPosition(position);
+        Log.d("MOVIE :: ",movie.toString());
     }
 }

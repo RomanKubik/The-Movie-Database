@@ -18,7 +18,7 @@ import kubik.roman.moviesdb.R;
 /**
  * Activity for downloading token and demonstrate logo
  */
-public class SplashActivity extends Activity {
+public class SplashActivity extends Activity implements HttpConnectionManager.OnRespondListener {
 
     private Token mToken;
 
@@ -50,6 +50,7 @@ public class SplashActivity extends Activity {
 
             public void onFinish() {
                 intent.putExtra("Token", mToken);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 finish();
             }
@@ -58,21 +59,25 @@ public class SplashActivity extends Activity {
     }
 
     //Send request to get token using HttpConnectionManager
-    public boolean sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
+    public void sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
         HttpConnectionManager httpManager = new HttpConnectionManager(this);
+
+        httpManager.setOnRespondListener(this);
 
         mToken = new Token();
 
-        String jsonStr = httpManager.getRequest(mToken.REQUESTED, "");
-        //Checking reply string
-        if (jsonStr.equals(httpManager.NOT_CONNECTED_MESSAGE) || jsonStr.equals(httpManager.FALSE_URL_MESSAGE) || jsonStr.equals(httpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
-            Toast.makeText(this, jsonStr,Toast.LENGTH_LONG).show();
-            return false;
-        } else {
-            mToken.setTokenFromJsonStr(jsonStr);
-            Log.d("SplashActivity", "Token was gotten");
-            return true;
-        }
+        httpManager.GET(mToken.REQUESTED, "");
     }
 
+
+    @Override
+    public void onRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException {
+        mToken.setTokenFromJsonStr(respond);
+        Log.d("SplashActivity", "Token was gotten");
+    }
+
+    @Override
+    public void onError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+    }
 }

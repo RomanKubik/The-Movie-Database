@@ -4,7 +4,7 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="log_in">Log in</string>
-    <string name="cont">Continue</string>
+    <string name="cont">Skip</string>
     
     <string name="invalidAuthentication">Invalid Login or Password</string>
 </resources>

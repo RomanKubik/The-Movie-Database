@@ -109,11 +109,11 @@ public class Movie {
         return mOriginalTitle;
     }
 
-    public void setmriginalTitle(String originalTitle) {
+    public void setOriginalTitle(String originalTitle) {
         this.mOriginalTitle = originalTitle;
     }
 
-    public String getmOverview() {
+    public String getOverview() {
         return mOverview;
     }
 
@@ -177,5 +177,23 @@ public class Movie {
         this.mVoteCount = voteCount;
     }
 
-
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "mAdult=" + mAdult +
+                ", mBackdropPath='" + mBackdropPath + '\'' +
+                ", mGenreIds=" + mGenreIds +
+                ", mId=" + mId +
+                ", mOriginalLanguage='" + mOriginalLanguage + '\'' +
+                ", mOriginalTitle='" + mOriginalTitle + '\'' +
+                ", mOverview='" + mOverview + '\'' +
+                ", mReleaseDate='" + mReleaseDate + '\'' +
+                ", mPosterPath='" + mPosterPath + '\'' +
+                ", mPopularity=" + mPopularity +
+                ", mTitle='" + mTitle + '\'' +
+                ", mVideo=" + mVideo +
+                ", mVoteAverage=" + mVoteAverage +
+                ", mVoteCount=" + mVoteCount +
+                '}';
+    }
 }

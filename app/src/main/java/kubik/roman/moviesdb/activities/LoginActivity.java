@@ -21,7 +21,7 @@ import kubik.roman.moviesdb.R;
 /**
  * Activity for login and creating session or guest_session id
  */
-public class LoginActivity extends Activity implements View.OnClickListener {
+public class LoginActivity extends Activity implements View.OnClickListener, HttpConnectionManager.OnRespondListener {
 
     public static final String REQUESTED_VALIDATE_WITH_LOGIN = "authentication/token/validate_with_login";
     public static final String REQUESTED_SESSION_NEW = "authentication/session/new";
@@ -40,7 +40,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
 
     private Token mToken;
-    private HttpConnectionManager httpManager;
+    private HttpConnectionManager mHttpManager;
 
     private EditText mEtLogin;
     private EditText mEtPassword;
@@ -53,7 +53,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         mToken = (Token) getIntent().getSerializableExtra("Token");
 
         initializeViews();
-        httpManager = new HttpConnectionManager(this);
+        mHttpManager = new HttpConnectionManager(this);
+        mHttpManager.setOnRespondListener(this);
     }
 
 
@@ -73,7 +74,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         try {
             switch (v.getId()) {
                 case R.id.btnLogin:
-                    login();
+                    sendLoginRequest();
                     break;
                 case R.id.btnContinue:
                     createGuestId();
@@ -87,60 +88,23 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
     }
 
-
-    private void login() throws InterruptedException, ExecutionException, JSONException {
-        if (sendLoginRequest()) {
-            String mSessionId = createSessionId();
-            startMainActivity(mSessionId, SESSION_ID);
-        } else {
-            Toast.makeText(this, R.string.invalidAuthentication, Toast.LENGTH_LONG).show();
-        }
-    }
-
     private void createGuestId() throws ExecutionException, InterruptedException, JSONException {
-        String jsonStr = httpManager.getRequest(REQUESTED_GUEST_ID, "");
-
-        if (jsonStr.equals(httpManager.NOT_CONNECTED_MESSAGE) || jsonStr.equals(httpManager.FALSE_URL_MESSAGE) || jsonStr.equals(httpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
-            Toast.makeText(this, jsonStr, Toast.LENGTH_LONG).show();
-        } else {
-            JSONObject jsonObject = new JSONObject(jsonStr);
-            Log.d("LoginActivity", String.valueOf(jsonObject.getBoolean(SUCCESS)));
-            startMainActivity(jsonObject.getString(GUEST_SESSION_ID), GUEST_SESSION_ID);
-        }
+        mHttpManager.GET(REQUESTED_GUEST_ID, "");
     }
 
 
-    private boolean sendLoginRequest() throws ExecutionException, InterruptedException, JSONException {
+    private void sendLoginRequest() throws ExecutionException, InterruptedException, JSONException {
         String tokenRequest = mToken.REQUEST_TOKEN + "=" + mToken.getRequestedToken();
         String loginRequest = USERNAME + "=" + mEtLogin.getText().toString();
         String passwordRequest = PASSWORD + "=" + mEtPassword.getText().toString();
 
-        String jsonStr = httpManager.getRequest(REQUESTED_VALIDATE_WITH_LOGIN, tokenRequest, loginRequest, passwordRequest);
-
-        //Checking reply string
-        if (jsonStr.equals(httpManager.NOT_CONNECTED_MESSAGE) || jsonStr.equals(httpManager.FALSE_URL_MESSAGE) || jsonStr.equals(httpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
-           // Toast.makeText(this, jsonStr, Toast.LENGTH_LONG).show();
-            return false;
-        } else {
-            JSONObject jsonObject = new JSONObject(jsonStr);
-            Log.d("LoginActivity", String.valueOf(jsonObject.getBoolean(SUCCESS)));
-            return jsonObject.getBoolean(SUCCESS);
-        }
+        mHttpManager.GET(REQUESTED_VALIDATE_WITH_LOGIN, tokenRequest, loginRequest, passwordRequest);
     }
 
-    private String createSessionId() throws ExecutionException, InterruptedException, JSONException {
+    private void createSessionId() throws ExecutionException, InterruptedException, JSONException {
         String tokenRequest = mToken.REQUEST_TOKEN + "=" + mToken.getRequestedToken();
 
-        String jsonStr = httpManager.getRequest(REQUESTED_SESSION_NEW, tokenRequest);
-
-        if (jsonStr.equals(httpManager.NOT_CONNECTED_MESSAGE) || jsonStr.equals(httpManager.FALSE_URL_MESSAGE) || jsonStr.equals(httpManager.FALSE_REQUEST_TYPE_MESSAGE)) {
-            //Toast.makeText(this, jsonStr, Toast.LENGTH_LONG).show();
-            return null;
-        } else {
-            JSONObject jsonObject = new JSONObject(jsonStr);
-            Log.d("LoginActivity", jsonObject.getString(SUCCESS));
-            return jsonObject.getString(SESSION_ID);
-        }
+        mHttpManager.GET(REQUESTED_SESSION_NEW, tokenRequest);
     }
 
 
@@ -149,9 +113,43 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(ID, sessionId);
             intent.putExtra(SESSION_TYPE, sessionType);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
         }
     }
 
+    @Override
+    public void onRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException {
+        JSONObject jsonObject = new JSONObject(respond);
+
+        switch (requested) {
+            case REQUESTED_VALIDATE_WITH_LOGIN:
+                isValid(jsonObject);
+                break;
+            case REQUESTED_SESSION_NEW:
+                Log.d("LoginActivity", String.valueOf(jsonObject.getBoolean(SUCCESS)));
+                startMainActivity(jsonObject.getString(SESSION_ID), SESSION_ID);
+                break;
+            case REQUESTED_GUEST_ID:
+                Log.d("LoginActivity", String.valueOf(jsonObject.getBoolean(SUCCESS)));
+                startMainActivity(jsonObject.getString(GUEST_SESSION_ID), GUEST_SESSION_ID);
+                break;
+        }
+
+    }
+
+    @Override
+    public void onError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+    }
+
+    private void isValid(JSONObject jsonObject) throws JSONException, ExecutionException, InterruptedException {
+        Log.d("LoginActivity", String.valueOf(jsonObject.getBoolean(SUCCESS)));
+        if (jsonObject.getBoolean(SUCCESS)) {
+            createSessionId();
+        } else {
+            Toast.makeText(this, R.string.invalidAuthentication, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

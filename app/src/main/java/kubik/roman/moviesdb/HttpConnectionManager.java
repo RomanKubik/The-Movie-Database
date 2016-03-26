@@ -6,6 +6,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 public class HttpConnectionManager {
 
     public static final String API_KEY = "api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-    public static final String REQUESTED_URL = "http://api.themoviedb.org/3";
+    public static final String BASE_URL = "http://api.themoviedb.org/3";
 
     public static final String GET ="GET";
     public static final String POST = "POST";
@@ -37,8 +39,15 @@ public class HttpConnectionManager {
 
     private Context mContext;
 
+    private OnRespondListener mRespondListener;
+
     public HttpConnectionManager(Context context) {
         mContext = context;
+        this.mRespondListener = null;
+    }
+
+    public void setOnRespondListener(OnRespondListener onRespondListener) {
+        this.mRespondListener = onRespondListener;
     }
 
     //Checking network connection
@@ -48,6 +57,8 @@ public class HttpConnectionManager {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
+
+
 
     //Download data using new thread
     private class DownloadDataAsyncTask extends AsyncTask<String, Void, String> {
@@ -92,6 +103,7 @@ public class HttpConnectionManager {
                 connection.setRequestMethod(GET);
                 connection.setDoInput(true);
                 connection.connect();
+                connection.getResponseCode();
                 iStream = connection.getInputStream();
                 return convertInStreamToString(iStream);
             } finally {
@@ -116,15 +128,36 @@ public class HttpConnectionManager {
 
     }
 
-
     //Creating request path(URL)
-    public String getRequest(String requested, String... params) throws ExecutionException, InterruptedException {
-        String param = REQUESTED_URL + "/" + requested + "?" + API_KEY;
+    public void GET(String requested, String... params) throws ExecutionException, InterruptedException, JSONException {
+        String param = BASE_URL + "/" + requested + "?" + API_KEY;
         for (String str: params) {
             param = param + "&" + str;
         }
         Log.d("Requested url = ", param);
-        return new DownloadDataAsyncTask().execute(param, GET).get();
+        String respond = new DownloadDataAsyncTask().execute(param, GET).get();
+        checkRespond(respond, requested);
+    }
+
+    private void checkRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException {
+        if (mRespondListener != null) {
+            switch (respond) {
+                case NOT_CONNECTED_MESSAGE:
+                case FALSE_URL_MESSAGE:
+                case FALSE_REQUEST_TYPE_MESSAGE:
+                    mRespondListener.onError(respond);
+                    break;
+                default:
+                    mRespondListener.onRespond(respond, requested);
+                    break;
+            }
+        }
+    }
+
+
+    public interface OnRespondListener {
+        void onRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException;
+        void onError(String error);
     }
 
 }
