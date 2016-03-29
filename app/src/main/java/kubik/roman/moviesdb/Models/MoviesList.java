@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class MoviesList {
 
-    public final String REQUESTED = "movie/top_rated";
+    public static final String REQUESTED = "movie/top_rated";
 
     public static final String PAGE = "page";
     public static final String RESULTS = "results";

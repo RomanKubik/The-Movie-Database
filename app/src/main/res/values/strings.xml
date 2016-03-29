@@ -7,4 +7,15 @@
     <string name="cont">Skip</string>
     
     <string name="invalidAuthentication">Invalid Login or Password</string>
+    <string name="genres">Genres</string>
+
+    <string name="release_date">Release date</string>
+    <string name="production_companies">Production countries</string>
+    <string name="production_countries">Production countries</string>
+    <string name="tagline">Tagline</string>
+    <string name="runtime">Runtime</string>
+    <string name="original_title">Original title</string>
+    <string name="budget">Budget</string>
+    <string name="spoken_languages">Spoken languages</string>
+
 </resources>

@@ -11,22 +11,30 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.models.Genre;
 import kubik.roman.moviesdb.models.Movie;
 import kubik.roman.moviesdb.models.MoviesList;
 
 /**
- * Created by roman on 3/21/2016.
+ * Adapter for displaying smoothly ListView using ViewHolder pattern
  */
 public class MovieListAdapter extends BaseAdapter {
 
-    public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w500";
+    public static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w300";
+    public static final String BACKDROP_BASE_URL = "http://image.tmdb.org/t/p/w500";
+
 
     private MoviesList mMoviesList;
     private Context mContext;
 
-    public MovieListAdapter(MoviesList moviesList, Context context) {
+    public static ArrayList<Genre> mGenresList;
+
+    public MovieListAdapter(MoviesList moviesList, ArrayList<Genre> genresList, Context context) {
         this.mMoviesList = moviesList;
+        mGenresList = genresList;
         this.mContext = context;
     }
 
@@ -54,11 +62,7 @@ public class MovieListAdapter extends BaseAdapter {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
             convertView = inflater.inflate(R.layout.movie_list_item, parent, false);
 
-            mtvHolder = new MovieViewHolder( (TextView) convertView.findViewById(R.id.tvTitle),
-                    (TextView) convertView.findViewById(R.id.tvRating),
-                    (TextView) convertView.findViewById(R.id.tvDescription),
-                    (ImageView) convertView.findViewById(R.id.ivTitle),
-                    (ImageView) convertView.findViewById(R.id.ivPoster) );
+            mtvHolder = new MovieViewHolder(convertView);
 
             convertView.setTag(mtvHolder);
         } else {
@@ -68,7 +72,7 @@ public class MovieListAdapter extends BaseAdapter {
         Movie movie = mMoviesList.getMoviesList().get(position);
 
         if (movie != null) {
-           mtvHolder.setMovieItem(movie, mContext);
+            mtvHolder.setMovieItem(movie, mContext);
         }
         return convertView;
     }
@@ -76,29 +80,40 @@ public class MovieListAdapter extends BaseAdapter {
     static class MovieViewHolder {
         TextView mTvTitle;
         TextView mTvRating;
-        TextView mTvDescription;
+        TextView mTvGenres;
         ImageView mIvTitle;
         ImageView mIvPoster;
+        String genresString;
 
-        public MovieViewHolder(TextView tvTitle, TextView tvRating, TextView tvDescription,
-                               ImageView ivTitle, ImageView ivPoster) {
-            this.mTvTitle = tvTitle;
-            this.mTvRating = tvRating;
-            this.mTvDescription = tvDescription;
-            this.mIvTitle = ivTitle;
-            this.mIvPoster = ivPoster;
+
+        public MovieViewHolder(View convertView) {
+            this.mTvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
+            this.mTvRating = (TextView) convertView.findViewById(R.id.tvRating);
+            this.mTvGenres = (TextView) convertView.findViewById(R.id.tvGenres);
+            this.mIvTitle = (ImageView) convertView.findViewById(R.id.iv_title);
+            this.mIvPoster = (ImageView) convertView.findViewById(R.id.ivPoster);
         }
 
-        public void setMovieItem (Movie movie, Context context) {
+        public void setMovieItem(Movie movie, Context context) {
             this.mTvTitle.setText(movie.getTitle());
             this.mTvTitle.setTag("Title");
-            this.mTvRating.setText(Double.toString(movie.getVoteAverage()));
+            this.mTvRating.setText(String.valueOf(movie.getVoteAverage()));
             this.mTvRating.setTag("Rating");
-            this.mTvDescription.setText(movie.getOverview());
-            this.mTvDescription.setTag("Description");
-            Picasso.with(context).load(IMAGE_BASE_URL + movie.getBackdropPath()).resize(360, 135).centerCrop().into(this.mIvTitle);
+            genresString = R.string.genres + " : ";
+
+            for (int i = 0; i < movie.getGenreIds().size(); i++) {
+                for (int j = 0; j < mGenresList.size(); j++) {
+                    if (mGenresList.get(j).getId() == movie.getGenreIds().get(i)) {
+                        genresString += mGenresList.get(j).getName() + "  ";
+                        break;
+                    }
+                }
+            }
+            this.mTvGenres.setText(genresString);
+            this.mTvGenres.setTag("Genres");
+            Picasso.with(context).load(BACKDROP_BASE_URL + movie.getBackdropPath()).fit().centerCrop().into(this.mIvTitle);
             this.mIvTitle.setTag("imgTitle");
-            Picasso.with(context).load(IMAGE_BASE_URL + movie.getPosterPath()).resize(100, 150).centerCrop().into(this.mIvPoster);
+            Picasso.with(context).load(POSTER_BASE_URL + movie.getPosterPath()).fit().centerCrop().into(this.mIvPoster);
             this.mIvPoster.setTag("imgPoster");
         }
     }

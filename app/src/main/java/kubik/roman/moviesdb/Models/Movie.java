@@ -1,5 +1,7 @@
 package kubik.roman.moviesdb.models;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,10 +48,14 @@ public class Movie {
 
         mAdult = jsonObject.getBoolean(ADULT);
         mBackdropPath = jsonObject.getString(BACKDROP_PATH);
-        JSONArray jsonArray = jsonObject.getJSONArray(GENRE_IDS);
-        mGenreIds = new ArrayList<>();
-        for (int i = 0; i < jsonArray.length(); i++) {
-            mGenreIds.add(jsonArray.getInt(i));
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray(GENRE_IDS);
+            mGenreIds = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                mGenreIds.add(jsonArray.getInt(i));
+            }
+        } catch (JSONException e) {
+            Log.d("", e.toString());
         }
         mId = jsonObject.getInt(ID);
         mOriginalLanguage = jsonObject.getString(ORIGINAL_LANGUAGE);

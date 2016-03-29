@@ -66,7 +66,7 @@ public class SplashActivity extends Activity implements HttpConnectionManager.On
 
         mToken = new Token();
 
-        httpManager.GET(mToken.REQUESTED, "");
+        httpManager.GET(mToken.REQUESTED);
     }
 
 

@@ -89,7 +89,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Htt
     }
 
     private void createGuestId() throws ExecutionException, InterruptedException, JSONException {
-        mHttpManager.GET(REQUESTED_GUEST_ID, "");
+        mHttpManager.GET(REQUESTED_GUEST_ID);
     }
 
 
@@ -135,13 +135,15 @@ public class LoginActivity extends Activity implements View.OnClickListener, Htt
                 Log.d("LoginActivity", String.valueOf(jsonObject.getBoolean(SUCCESS)));
                 startMainActivity(jsonObject.getString(GUEST_SESSION_ID), GUEST_SESSION_ID);
                 break;
+            default:
+                break;
         }
 
     }
 
     @Override
     public void onError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.invalidAuthentication, Toast.LENGTH_SHORT).show();
     }
 
     private void isValid(JSONObject jsonObject) throws JSONException, ExecutionException, InterruptedException {
