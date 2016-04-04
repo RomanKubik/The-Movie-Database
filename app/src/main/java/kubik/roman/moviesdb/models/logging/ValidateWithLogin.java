@@ -1,27 +1,14 @@
-package kubik.roman.moviesdb.models;
+package kubik.roman.moviesdb.models.logging;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
 /**
- * Class for representation of JSON authentication request
+ * Created by roman on 4/1/2016.
  */
-public class Token implements Serializable{
-
-    @SerializedName("expires_at")
-    private String expiresAt;
+public class ValidateWithLogin {
     @SerializedName("request_token")
     private String requestToken;
     private boolean success;
-
-    public String getExpiresAt() {
-        return expiresAt;
-    }
-
-    public void setExpiresAt(String expiresAt) {
-        this.expiresAt = expiresAt;
-    }
 
     public String getRequestToken() {
         return requestToken;

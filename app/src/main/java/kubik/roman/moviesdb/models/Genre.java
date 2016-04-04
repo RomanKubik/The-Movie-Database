@@ -4,28 +4,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by roman on 3/26/2016.
+ * List with genre and appropriate id
  */
 public class Genre {
 
-    public static final String ID = "id";
-    public static final String NAME = "name";
-
-    private int mId;
-    private String mName;
-
-    public void setGenreFromJson(String jsonStr) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonStr);
-
-        mId = jsonObject.getInt(ID);
-        mName = jsonObject.getString(NAME);
-    }
+    private int id;
+    private String name;
 
     public int getId() {
-        return mId;
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
-        return mName;
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

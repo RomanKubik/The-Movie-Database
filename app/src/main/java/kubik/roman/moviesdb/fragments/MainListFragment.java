@@ -1,8 +1,5 @@
 package kubik.roman.moviesdb.fragments;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -11,39 +8,40 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-
-import kubik.roman.moviesdb.HttpConnectionManager;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.adapters.MovieListAdapter;
-import kubik.roman.moviesdb.models.Genre;
-import kubik.roman.moviesdb.models.Movie;
-import kubik.roman.moviesdb.models.MovieResponse;
-import kubik.roman.moviesdb.models.MoviesList;
+import kubik.roman.moviesdb.models.movies_list.GenresList;
+import kubik.roman.moviesdb.models.movies_list.Movie;
+import kubik.roman.moviesdb.models.movies_list.MoviesList;
 
 /**
  * Fragment for displaying main list
  */
-public class MainListFragment extends BaseFragment implements HttpConnectionManager.OnRespondListener, AdapterView.OnItemClickListener {
+public class MainListFragment extends BaseFragment implements Response.ErrorListener, AdapterView.OnItemClickListener {
 
-    public static final String REQUESTED_GENRE_LIST = "genre/movie/list";
-    public static final String GENRES = "genres";
+    public static final String GENRES_LIST_URL = "http://api.themoviedb.org/3/genre/movie/list?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
+    public static final String MOVIES_LIST_TOP_RATE_URL = "http://api.themoviedb.org/3/movie/top_rated?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
 
-    private HttpConnectionManager mHttpConnectionManager;
+
     private MoviesList mMoviesList;
-    private ArrayList<Genre> mGenresList;
+    private GenresList mGenresList;
 
-    private Context mContext;
     private View view;
+
+    private RequestQueue queue;
 
     @Nullable
     @Override
@@ -51,83 +49,78 @@ public class MainListFragment extends BaseFragment implements HttpConnectionMana
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.main_list_fragment, null);
-        mContext = container.getContext();
-        try {
-            mHttpConnectionManager = new HttpConnectionManager(mContext);
-            mHttpConnectionManager.setOnRespondListener(this);
 
-            getGenresList();
-            showMoviesList();
-        } catch (ExecutionException | InterruptedException | JSONException e) {
-            Log.d("MainFragment", e.toString());
-        }
+        queue = Volley.newRequestQueue(getBaseActivity());
+
+        getGenresList();
+        getMoviesList();
+
         return view;
     }
 
-    public void thisWillBeCalledOnBackPressed() {
-        showToast("This method is invoked on back action of USER");
+    private void getGenresList() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                GENRES_LIST_URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Gson gson = new Gson();
+                mGenresList = gson.fromJson(response, GenresList.class);
+            }
+        }, this);
+
+        queue.add(stringRequest);
     }
 
-    private void getGenresList() throws InterruptedException, ExecutionException, JSONException {
-
-        mGenresList = new ArrayList<>();
-
-        mHttpConnectionManager.GET(REQUESTED_GENRE_LIST);
+    private void getMoviesList() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                MOVIES_LIST_TOP_RATE_URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Gson gson = new Gson();
+                mMoviesList = gson.fromJson(response, MoviesList.class);
+                showMoviesList();
+            }
+        }, this);
+        queue.add(stringRequest);
     }
 
-    private void setGenresList(String jsonStr) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonStr);
-        JSONArray jsonArray = jsonObject.getJSONArray(GENRES);
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            Genre genre = new Genre();
-
-            genre.setGenreFromJson(jsonArray.getString(i));
-            mGenresList.add(genre);
-        }
-
-    }
-
-    private void showMoviesList() throws ExecutionException, InterruptedException, JSONException {
-
-        mMoviesList = new MoviesList();
-
-        mHttpConnectionManager.GET(MoviesList.REQUESTED);
-
-        showList();
-
-    }
-
-    private void showList() {
-        MovieListAdapter adapter = new MovieListAdapter(mMoviesList, mGenresList, mContext);
+    private void showMoviesList() {
+        MovieListAdapter adapter = new MovieListAdapter(mMoviesList, mGenresList, getBaseActivity());
         ListView listView = (ListView) view.findViewById(R.id.lvTitle);
         listView.setOnItemClickListener(this);
         listView.setAdapter(adapter);
     }
 
-
     @Override
-    public void onRespond(String respond, String requested) throws JSONException,
-            ExecutionException, InterruptedException {
+    public void onErrorResponse(VolleyError error) {
+        String json = null;
 
-        switch (requested) {
-            case MoviesList.REQUESTED:
-                mMoviesList.setMoviesListFromJson(respond);
-                break;
-            case REQUESTED_GENRE_LIST:
-                setGenresList(respond);
-                break;
-            default:
-                break;
+        NetworkResponse response = error.networkResponse;
+        if(response != null && response.data != null){
+            switch(response.statusCode){
+                case 200:
+                    break;
+                default:
+                    json = new String(response.data);
+                    json = trimMessage(json, "status_message");
+                    if(json != null) showToast(json);
+                    break;
+            }
         }
-
     }
 
+    public String trimMessage(String json, String key){
+        String trimmedString = null;
 
-    @Override
-    public void onError(String error) {
-        //Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
-        showToast(error);
+        try{
+            JSONObject obj = new JSONObject(json);
+            trimmedString = obj.getString(key);
+        } catch(JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return trimmedString;
     }
 
     @Override

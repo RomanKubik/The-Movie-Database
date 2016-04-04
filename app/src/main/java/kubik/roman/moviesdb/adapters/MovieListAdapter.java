@@ -11,12 +11,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.models.Genre;
-import kubik.roman.moviesdb.models.Movie;
-import kubik.roman.moviesdb.models.MoviesList;
+import kubik.roman.moviesdb.models.movies_list.GenresList;
+import kubik.roman.moviesdb.models.movies_list.Movie;
+import kubik.roman.moviesdb.models.movies_list.MoviesList;
 
 /**
  * Adapter for displaying smoothly ListView using ViewHolder pattern
@@ -30,9 +29,9 @@ public class MovieListAdapter extends BaseAdapter {
     private MoviesList mMoviesList;
     private Context mContext;
 
-    public static ArrayList<Genre> mGenresList;
+    public static GenresList mGenresList;
 
-    public MovieListAdapter(MoviesList moviesList, ArrayList<Genre> genresList, Context context) {
+    public MovieListAdapter(MoviesList moviesList, GenresList genresList, Context context) {
         this.mMoviesList = moviesList;
         mGenresList = genresList;
         this.mContext = context;
@@ -40,12 +39,12 @@ public class MovieListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mMoviesList.getMoviesList().size();
+        return mMoviesList.getResults().size();
     }
 
     @Override
     public Movie getItem(int position) {
-        return mMoviesList.getMoviesList().get(position);
+        return mMoviesList.getResults().get(position);
     }
 
     @Override
@@ -69,7 +68,7 @@ public class MovieListAdapter extends BaseAdapter {
             mtvHolder = (MovieViewHolder) convertView.getTag();
         }
 
-        Movie movie = mMoviesList.getMoviesList().get(position);
+        Movie movie = mMoviesList.getResults().get(position);
 
         if (movie != null) {
             mtvHolder.setMovieItem(movie, mContext);
@@ -83,38 +82,33 @@ public class MovieListAdapter extends BaseAdapter {
         TextView mTvGenres;
         ImageView mIvTitle;
         ImageView mIvPoster;
-        String genresString;
+        String mGenresString;
 
 
         public MovieViewHolder(View convertView) {
-            this.mTvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
+            this.mTvTitle = (TextView) convertView.findViewById(R.id.tv_title);
             this.mTvRating = (TextView) convertView.findViewById(R.id.tvRating);
             this.mTvGenres = (TextView) convertView.findViewById(R.id.tvGenres);
             this.mIvTitle = (ImageView) convertView.findViewById(R.id.iv_title);
-            this.mIvPoster = (ImageView) convertView.findViewById(R.id.ivPoster);
+            this.mIvPoster = (ImageView) convertView.findViewById(R.id.iv_poster);
         }
 
         public void setMovieItem(Movie movie, Context context) {
             this.mTvTitle.setText(movie.getTitle());
-            this.mTvTitle.setTag("Title");
             this.mTvRating.setText(String.valueOf(movie.getVoteAverage()));
-            this.mTvRating.setTag("Rating");
-            genresString = R.string.genres + " : ";
+            mGenresString = R.string.genres + ": ";
 
             for (int i = 0; i < movie.getGenreIds().size(); i++) {
-                for (int j = 0; j < mGenresList.size(); j++) {
-                    if (mGenresList.get(j).getId() == movie.getGenreIds().get(i)) {
-                        genresString += mGenresList.get(j).getName() + "  ";
+                for (int j = 0; j < mGenresList.getGenres().size(); j++) {
+                    if (mGenresList.getGenres().get(j).getId() == movie.getGenreIds().get(i)) {
+                        mGenresString += mGenresList.getGenres().get(j).getName() + "  ";
                         break;
                     }
                 }
             }
-            this.mTvGenres.setText(genresString);
-            this.mTvGenres.setTag("Genres");
+            this.mTvGenres.setText(mGenresString);
             Picasso.with(context).load(BACKDROP_BASE_URL + movie.getBackdropPath()).fit().centerCrop().into(this.mIvTitle);
-            this.mIvTitle.setTag("imgTitle");
             Picasso.with(context).load(POSTER_BASE_URL + movie.getPosterPath()).fit().centerCrop().into(this.mIvPoster);
-            this.mIvPoster.setTag("imgPoster");
         }
     }
 }

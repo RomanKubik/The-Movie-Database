@@ -7,18 +7,26 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.json.JSONException;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
-import java.util.concurrent.ExecutionException;
-
-import kubik.roman.moviesdb.HttpConnectionManager;
 import kubik.roman.moviesdb.models.Token;
 import kubik.roman.moviesdb.R;
 
 /**
  * Activity for downloading token and demonstrate logo
  */
-public class SplashActivity extends Activity implements HttpConnectionManager.OnRespondListener {
+public class SplashActivity extends Activity implements Response.Listener<String>, Response.ErrorListener {
+
+    //Requested URL
+    public static final String TOKEN_URL_WITH_API_KEY = "http://api.themoviedb.org/3/authentication/token/new?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
+
+    public static final String TAG = SplashActivity.class.getSimpleName();
 
     private Token mToken;
 
@@ -26,28 +34,25 @@ public class SplashActivity extends Activity implements HttpConnectionManager.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Log.d("SplashActivity", "onResume");
-
+        makeRequest();
 
         final Intent intent = new Intent(this, LoginActivity.class);
 
-        new CountDownTimer(4000, 2000) {
-
+        new CountDownTimer(4000, 1000) {
+            @Override
             public void onTick(long millisUntilFinished) {
-                Log.d("SplashActivity", "onTick");
-                try {
-                    sendTokenRequest();
-                } catch (ExecutionException | InterruptedException | JSONException e) {
-                    Log.d("onResume SplashActivity", e.toString());
-                }
+
             }
 
+            @Override
             public void onFinish() {
                 intent.putExtra("Token", mToken);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -55,29 +60,33 @@ public class SplashActivity extends Activity implements HttpConnectionManager.On
                 finish();
             }
         }.start();
-
     }
 
-    //Send request to get token using HttpConnectionManager
-    public void sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
-        HttpConnectionManager httpManager = new HttpConnectionManager(this);
+    private void makeRequest() {
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-        httpManager.setOnRespondListener(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                TOKEN_URL_WITH_API_KEY, this, this);
 
+        queue.add(stringRequest);
+    }
+
+    private void createToken(String response) {
+        Gson gson = new Gson();
         mToken = new Token();
-
-        httpManager.GET(mToken.REQUESTED);
-    }
-
-
-    @Override
-    public void onRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException {
-        mToken.setTokenFromJsonStr(respond);
-        Log.d("SplashActivity", "Token was gotten");
+        mToken = gson.fromJson(response, Token.class);
     }
 
     @Override
-    public void onError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+    public void onResponse(String response) {
+        createToken(response);
+        Log.d(TAG, mToken.getRequestToken());
     }
+
+    @Override
+    public void onErrorResponse(VolleyError error) {
+        Toast.makeText(this, error.toString(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, error.toString());
+    }
+
 }
