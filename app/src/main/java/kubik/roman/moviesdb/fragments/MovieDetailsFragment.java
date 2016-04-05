@@ -2,7 +2,9 @@ package kubik.roman.moviesdb.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ import org.json.JSONObject;
 
 import kubik.roman.moviesdb.NonScrollListView;
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.adapters.ImageListAdapter;
 import kubik.roman.moviesdb.models.Genre;
 import kubik.roman.moviesdb.models.movies_detailes.MovieDetails;
 import kubik.roman.moviesdb.models.movies_detailes.MovieImages;
@@ -35,6 +38,7 @@ import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
  */
 public class MovieDetailsFragment extends BaseFragment implements Response.ErrorListener {
 
+    public static final String TAG = MovieDetailsFragment.class.getName();
 
     public static final String MOVIE_DETAILS_URL = "http://api.themoviedb.org/3/movie/";
     public static final String MOVIE_IMAGES = "/images";
@@ -52,6 +56,9 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private MovieImages mMovieImages;
     private MovieVideos mMovieVideos;
     private MovieReviews mMoviesReviews;
+
+    private ImageListAdapter mImageAdapter;
+    RecyclerView.LayoutManager layoutManager;
 
     private int mMovieId;
 
@@ -75,6 +82,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private RecyclerView mRvSimilar;
 
     private RequestQueue queue;
+
     public static MovieDetailsFragment newInstance(int id) {
 
         MovieDetailsFragment movieDetailsFragment = new MovieDetailsFragment();
@@ -92,13 +100,16 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mMovieId = getArguments().getInt(ID);
         queue = Volley.newRequestQueue(getBaseActivity());
         getMovieAllMovieDetails();
+        Log.d(TAG, "onCreate");
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.movie_details_fragment, null);
+        Log.d(TAG, "onCreateView1");
         initializeViews();
+        Log.d(TAG, "onCreateView2");
         return view;
     }
 
@@ -118,6 +129,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onResponse(String response) {
                 Gson gson = new Gson();
                 mMovieDetails = gson.fromJson(response, MovieDetails.class);
+                Log.d(TAG, "Details");
             }
         }, this);
         queue.add(stringRequest);
@@ -131,6 +143,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onResponse(String response) {
                 Gson gson = new Gson();
                 mMovieImages = gson.fromJson(response, MovieImages.class);
+                Log.d(TAG, "Images");
             }
         }, this);
         queue.add(stringRequest);
@@ -144,6 +157,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onResponse(String response) {
                 Gson gson = new Gson();
                 mMovieVideos = gson.fromJson(response, MovieVideos.class);
+                Log.d(TAG, "Videos");
             }
         }, this);
         queue.add(stringRequest);
@@ -157,6 +171,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onResponse(String response) {
                 Gson gson = new Gson();
                 mMoviesReviews = gson.fromJson(response, MovieReviews.class);
+                Log.d(TAG, "Reviews");
             }
         }, this);
         queue.add(stringRequest);
@@ -169,6 +184,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             @Override
             public void onResponse(String response) {
                 setViews();
+                Log.d(TAG, "Similar");
             }
         }, this);
         queue.add(stringRequest);
@@ -192,6 +208,10 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
         mNslvReviews = (NonScrollListView) view.findViewById(R.id.lv_reviews);
         mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
+
+        Log.d(TAG, "Initializing");
+
+
     }
 
     private void setViews() {
@@ -206,13 +226,21 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             genres += genre.getName() + "  ";
         }
         mTvGenres.setText(genres);
-        mTvRating.setText(mMovieDetails.getOriginalTitle());
+        mTvOrigTitle.setText(mMovieDetails.getOriginalTitle());
         mTvDate.setText(mMovieDetails.getReleaseDate());
-        String runtime = String.valueOf(mMovieDetails.getRuntime()) + R.string.minutes;
+        String runtime = String.valueOf(mMovieDetails.getRuntime()) + " " + R.string.minutes;
         mTvRuntime.setText(runtime);
         mTvDescription.setText(mMovieDetails.getOverview());
+
+        mImageAdapter = new ImageListAdapter(mMovieImages.getBackdrops(), getBaseActivity());
+        layoutManager = new LinearLayoutManager(getActivity());
+        mRvPictures.setLayoutManager(layoutManager);
+        mRvPictures.setAdapter(mImageAdapter);
+        mImageAdapter.notifyDataSetChanged();
+
         mTvTagline.setText(mMovieDetails.getTagline());
         mTvBuget.setText(String.valueOf(mMovieDetails.getBudget()));
+        Log.d(TAG, "Setting up");
 
     }
 
@@ -247,90 +275,4 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
 
         return trimmedString;
     }
-/*
-
-
-
-
-    private ImageView mImvBackdrop;
-    private ImageView mImvPoster;
-    private TextView mTvTitle;
-    private TextView mTvRating;
-    private TextView mTvGenres;
-    private TextView mTvOrigTitle;
-    private TextView mDate;
-    private TextView mDescription;
-
-
-
-    private HttpConnectionManager mHttpConnectionManager;
-    private MovieDetails mMovieDetails;
-
-    private Context mContext;
-
-    private int mMovieId;
-
-    public static MovieDetailsFragment newInstance(int id) {
-
-        MovieDetailsFragment movieDetailsFragment = new MovieDetailsFragment();
-
-        Bundle args = new Bundle();
-        args.putInt(ID, id);
-        movieDetailsFragment.setArguments(args);
-
-        return movieDetailsFragment;
-    }
-
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mMovieId = getArguments().getInt(ID);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.movie_details_fragment, null);
-        mContext = container.getContext();
-        try {
-            mHttpConnectionManager = new HttpConnectionManager(mContext);
-            mHttpConnectionManager.setOnRespondListener(this);
-            getMovieDetails();
-        } catch (InterruptedException | ExecutionException | JSONException e) {
-            Log.d("MovieDetailFragment", e.toString());
-        }
-        setView();
-        return view;
-    }
-
-    private void setView() {
-
-    }
-
-    private void getMovieDetails() throws InterruptedException, ExecutionException, JSONException {
-
-        mMovieDetails = new MovieDetails();
-
-        mHttpConnectionManager.GET(mMovieDetails.REQUESTED + Integer.toString(mMovieId));
-
-    }
-
-
-    @Override
-    public void onRespond(String respond, String requested) throws JSONException,
-            ExecutionException, InterruptedException {
-
-            mMovieDetails.setMovieDetailsFromJson(respond);
-            Log.d("Movie title :: ", mMovieDetails.getTitle());
-
-    }
-
-
-
-    @Override
-    public void onError(String error) {
-        Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
-    }*/
 }
