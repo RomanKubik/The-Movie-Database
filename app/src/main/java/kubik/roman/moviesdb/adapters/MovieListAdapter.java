@@ -96,7 +96,7 @@ public class MovieListAdapter extends BaseAdapter {
         public void setMovieItem(Movie movie, Context context) {
             this.mTvTitle.setText(movie.getTitle());
             this.mTvRating.setText(String.valueOf(movie.getVoteAverage()));
-            mGenresString = R.string.genres + ": ";
+            mGenresString = context.getString(R.string.genres) + ": ";
 
             for (int i = 0; i < movie.getGenreIds().size(); i++) {
                 for (int j = 0; j < mGenresList.getGenres().size(); j++) {

@@ -24,14 +24,20 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import kubik.roman.moviesdb.NonScrollListView;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.adapters.ImageListAdapter;
 import kubik.roman.moviesdb.models.Genre;
+import kubik.roman.moviesdb.models.movies_detailes.Image;
 import kubik.roman.moviesdb.models.movies_detailes.MovieDetails;
 import kubik.roman.moviesdb.models.movies_detailes.MovieImages;
 import kubik.roman.moviesdb.models.movies_detailes.MovieReviews;
 import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
+import kubik.roman.moviesdb.util.Validator;
 
 /**
  * Fragment for displaying full information about selected movie
@@ -58,7 +64,6 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private MovieReviews mMoviesReviews;
 
     private ImageListAdapter mImageAdapter;
-    RecyclerView.LayoutManager layoutManager;
 
     private int mMovieId;
 
@@ -74,14 +79,17 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private TextView mTvDescription;
     private RecyclerView mRvPictures;
     private TextView mTvTagline;
-    private TextView mTvBuget;
+    private TextView mTvBudget;
     private RecyclerView mRvCasts;
     private TextView mTvProdCountries;
     private TextView mTvProdCompanies;
-    private NonScrollListView mNslvReviews;
     private RecyclerView mRvSimilar;
 
+    private List<Image> mImageList = new ArrayList<>();
+
     private RequestQueue queue;
+
+    private Set<Integer> mRequestsQueue = new HashSet<>();
 
     public static MovieDetailsFragment newInstance(int id) {
 
@@ -94,26 +102,40 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         return movieDetailsFragment;
     }
 
+    private void registerRequestInQueue(int requestID) {
+        if (!mRequestsQueue.contains(requestID)) {
+            mRequestsQueue.add(requestID);
+        }
+    }
+
+    private void unregisterRequestFromQueue(int requestID) {
+        mRequestsQueue.remove(requestID);
+
+        if (mRequestsQueue.isEmpty()) {
+            setupViews();
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMovieId = getArguments().getInt(ID);
-        queue = Volley.newRequestQueue(getBaseActivity());
-        getMovieAllMovieDetails();
-        Log.d(TAG, "onCreate");
+        queue = Volley.newRequestQueue(getActivity());
+        Log.d(TAG, "onCreate  " + mMovieId);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.movie_details_fragment, null);
+        view = inflater.inflate(R.layout.movie_details_fragment, container, false);
         Log.d(TAG, "onCreateView1");
         initializeViews();
+        getAllMovieDetails();
         Log.d(TAG, "onCreateView2");
         return view;
     }
 
-    private void getMovieAllMovieDetails() {
+    private void getAllMovieDetails() {
         getMovieDetails();
         getMovieImages();
         getMovieVideos();
@@ -122,71 +144,95 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     }
 
     private void getMovieDetails() {
+        final int movieRequest = 1;
+        registerRequestInQueue(movieRequest);
         String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + API_KEY;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mMovieDetails = gson.fromJson(response, MovieDetails.class);
-                Log.d(TAG, "Details");
-            }
-        }, this);
+                    @Override
+                    public void onResponse(String response) {
+                        if (Validator.isStringValid(response)) {
+                            unregisterRequestFromQueue(movieRequest);
+                            Gson gson = new Gson();
+                            mMovieDetails = gson.fromJson(response, MovieDetails.class);
+                            Log.d(TAG, "Details");
+
+                        }
+                    }
+                }, this);
         queue.add(stringRequest);
     }
 
+
+    private void GET(String url, Response.Listener<String> listener, Response.ErrorListener errorListener) {
+        StringRequest request = new StringRequest(Request.Method.GET, url, listener, errorListener);
+        queue.add(request);
+    }
+
     private void getMovieImages() {
+        final int imagesRequest = 2;
+        registerRequestInQueue(imagesRequest);
         String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_IMAGES + API_KEY;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mMovieImages = gson.fromJson(response, MovieImages.class);
-                Log.d(TAG, "Images");
-            }
-        }, this);
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        mMovieImages = gson.fromJson(response, MovieImages.class);
+                        Log.d(TAG, "Images");
+
+                        unregisterRequestFromQueue(imagesRequest);
+                    }
+                }, this);
         queue.add(stringRequest);
     }
 
     private void getMovieVideos() {
+        final int videoRequest = 3;
+        registerRequestInQueue(videoRequest);
         String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_VIDEOS + API_KEY;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mMovieVideos = gson.fromJson(response, MovieVideos.class);
-                Log.d(TAG, "Videos");
-            }
-        }, this);
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        mMovieVideos = gson.fromJson(response, MovieVideos.class);
+                        Log.d(TAG, "Videos");
+                        unregisterRequestFromQueue(videoRequest);
+                    }
+                }, this);
         queue.add(stringRequest);
     }
 
     private void getMovieReviews() {
+        final int reviewsRequest = 4;
+        registerRequestInQueue(reviewsRequest);
         String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_REVIEWS + API_KEY;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mMoviesReviews = gson.fromJson(response, MovieReviews.class);
-                Log.d(TAG, "Reviews");
-            }
-        }, this);
+                    @Override
+                    public void onResponse(String response) {
+                        Gson gson = new Gson();
+                        mMoviesReviews = gson.fromJson(response, MovieReviews.class);
+                        Log.d(TAG, "Reviews");
+                        unregisterRequestFromQueue(reviewsRequest);
+                    }
+                }, this);
         queue.add(stringRequest);
     }
 
     private void getMovieSimilar() {
+        final int similarRequest = 6;
+        registerRequestInQueue(similarRequest);
         String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_SIMILAR + API_KEY;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                setViews();
-                Log.d(TAG, "Similar");
-            }
-        }, this);
+                    @Override
+                    public void onResponse(String response) {
+                        unregisterRequestFromQueue(similarRequest);
+                        Log.d(TAG, "Similar");
+                    }
+                }, this);
         queue.add(stringRequest);
     }
 
@@ -200,13 +246,19 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvDate = (TextView) view.findViewById(R.id.tv_date);
         mTvRuntime = (TextView) view.findViewById(R.id.tv_runtime);
         mTvDescription = (TextView) view.findViewById(R.id.tv_description);
+
         mRvPictures = (RecyclerView) view.findViewById(R.id.rv_pictures);
+       /* final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+       */
+
+
+
         mTvTagline = (TextView) view.findViewById(R.id.tv_tagline);
-        mTvBuget = (TextView) view.findViewById(R.id.tv_budget);
+        mTvBudget = (TextView) view.findViewById(R.id.tv_budget);
         mRvCasts = (RecyclerView) view.findViewById(R.id.rv_casts);
         mTvProdCountries = (TextView) view.findViewById(R.id.tv_countries);
         mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
-        mNslvReviews = (NonScrollListView) view.findViewById(R.id.lv_reviews);
         mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
 
         Log.d(TAG, "Initializing");
@@ -214,61 +266,65 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
 
     }
 
-    private void setViews() {
+    private void setupViews() {
         Picasso.with(getBaseActivity()).load(BACKDROP_BASE_URL + mMovieDetails.getBackdropPath()).
                 fit().centerCrop().into(this.mImvBackdrop);
         Picasso.with(getBaseActivity()).load(POSTER_BASE_URL + mMovieDetails.getPosterPath()).
                 fit().centerCrop().into(this.mImvPoster);
         mTvTitle.setText(mMovieDetails.getTitle());
         mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
-        String genres = R.string.genres + ": ";
-        for (Genre genre: mMovieDetails.getGenres()) {
+        String genres = getString(R.string.genres) + ": ";
+        for (Genre genre : mMovieDetails.getGenres()) {
             genres += genre.getName() + "  ";
         }
         mTvGenres.setText(genres);
         mTvOrigTitle.setText(mMovieDetails.getOriginalTitle());
         mTvDate.setText(mMovieDetails.getReleaseDate());
-        String runtime = String.valueOf(mMovieDetails.getRuntime()) + " " + R.string.minutes;
+        String runtime = String.valueOf(mMovieDetails.getRuntime()) + " " + getString(R.string.minutes);
         mTvRuntime.setText(runtime);
         mTvDescription.setText(mMovieDetails.getOverview());
 
-        mImageAdapter = new ImageListAdapter(mMovieImages.getBackdrops(), getBaseActivity());
-        layoutManager = new LinearLayoutManager(getActivity());
-        mRvPictures.setLayoutManager(layoutManager);
+        mImageList.clear();
+        mImageList.addAll(mMovieImages.getBackdrops());
+        mImageAdapter = new ImageListAdapter(mImageList, getActivity());
         mRvPictures.setAdapter(mImageAdapter);
-        mImageAdapter.notifyDataSetChanged();
+        mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+       // mImageAdapter.notifyDataSetChanged();
 
         mTvTagline.setText(mMovieDetails.getTagline());
-        mTvBuget.setText(String.valueOf(mMovieDetails.getBudget()));
+        mTvBudget.setText(String.valueOf(mMovieDetails.getBudget()));
         Log.d(TAG, "Setting up");
 
     }
+
+
+
 
     @Override
     public void onErrorResponse(VolleyError error) {
         String json = null;
 
         NetworkResponse response = error.networkResponse;
-        if(response != null && response.data != null){
-            switch(response.statusCode){
+        if (response != null && response.data != null) {
+            switch (response.statusCode) {
                 case 200:
                     break;
                 default:
                     json = new String(response.data);
                     json = trimMessage(json, "status_message");
-                    if(json != null) showToast(json);
+                    if (json != null) showToast(json);
                     break;
             }
         }
     }
 
-    public String trimMessage(String json, String key){
+    public String trimMessage(String json, String key) {
         String trimmedString = null;
 
-        try{
+        try {
             JSONObject obj = new JSONObject(json);
             trimmedString = obj.getString(key);
-        } catch(JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }

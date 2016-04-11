@@ -21,21 +21,21 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w300";
 
-    private List<Image> mImageList;
+    private List<Image> mImage;
     private Context mContext;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView ivImage;
+        public ImageView imageView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ivImage = (ImageView) itemView.findViewById(R.id.img);
+            imageView = (ImageView) itemView.findViewById(R.id.img);
         }
     }
 
-    public ImageListAdapter(List<Image> mImageList, Context context) {
-        this.mImageList = mImageList;
-        this.mContext = context;
+    public ImageListAdapter(List<Image> image, Context context) {
+        mImage = image;
+        mContext = context;
     }
 
     @Override
@@ -43,20 +43,20 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        View itemView = inflater.inflate(R.layout.movie_img_item, parent, false);
-        return new ViewHolder(itemView);
+        View view = inflater.inflate(R.layout.movie_img_item, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Image image = mImageList.get(position);
-        Picasso.with(mContext).load(IMAGE_BASE_URL + image.getFilePath()).
-                fit().centerCrop().into(holder.ivImage);
+        Image image = mImage.get(position);
+        Picasso.with(mContext).load(IMAGE_BASE_URL + image.getFilePath()).fit().into(holder.imageView);
+
     }
 
     @Override
     public int getItemCount() {
-        return mImageList.size();
+        return mImage.size();
     }
 
 }

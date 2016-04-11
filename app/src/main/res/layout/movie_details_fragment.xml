@@ -99,8 +99,8 @@
             android:textSize="18sp"
             android:text="@string/pictures"/>
         <android.support.v7.widget.RecyclerView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:scrollbars="horizontal"
             android:id="@+id/rv_pictures">
         </android.support.v7.widget.RecyclerView>
@@ -151,11 +151,6 @@
             android:layout_height="wrap_content"
             android:text="@string/reviews"
             android:textSize="18sp"/>
-        <kubik.roman.moviesdb.NonScrollListView
-            android:id="@+id/lv_reviews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </kubik.roman.moviesdb.NonScrollListView>
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
