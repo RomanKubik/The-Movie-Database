@@ -12,14 +12,13 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.models.movies_detailes.Image;
 
 /**
- * Created by roman on 4/4/2016.
+ * Adapter for displaying list of images
  */
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> {
-
-    public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w300";
 
     private List<Image> mImage;
     private Context mContext;
@@ -50,7 +49,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Image image = mImage.get(position);
-        Picasso.with(mContext).load(IMAGE_BASE_URL + image.getFilePath()).fit().into(holder.imageView);
+        Picasso.with(mContext).load(TmdbUrls.getBackdropBaseUrl(image.getFilePath())).fit().into(holder.imageView);
 
     }
 

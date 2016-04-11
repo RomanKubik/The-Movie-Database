@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.models.logging.AuthSessionId;
 import kubik.roman.moviesdb.models.logging.GuestSessionId;
 import kubik.roman.moviesdb.models.logging.ValidateWithLogin;
@@ -35,10 +36,6 @@ import kubik.roman.moviesdb.R;
 public class LoginActivity extends Activity implements View.OnClickListener, Response.ErrorListener {
 
     public static final String TAG = LoginActivity.class.getSimpleName();
-
-    public static final String VALIDATE_WITH_LOGIN_URL = "http://api.themoviedb.org/3/authentication/token/validate_with_login?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-    public static final String NEW_SESSION_URL = "http://api.themoviedb.org/3/authentication/session/new?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-    public static final String GUEST_SESSION_URL = "http://api.themoviedb.org/3/authentication/guest_session/new?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
 
     public static final String USERNAME = "user_name";
     public static final String PASSWORD = "password";
@@ -113,11 +110,9 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     }
 
     private void makeAuthSession() {
-
-        String request = VALIDATE_WITH_LOGIN_URL + "&request_token=" + mToken.getRequestToken() +
-                "&username=" + mEtLogin.getText() + "&password=" + mEtPassword.getText();
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                request, new Response.Listener<String>() {
+                TmdbUrls.getValidateWithLoginUrl(mToken.getRequestToken(), mEtLogin.getText().toString(),
+                        mEtPassword.getText().toString()), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Gson gson = new Gson();
@@ -147,9 +142,8 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     }
 
     private void getAuthId() {
-        String request = NEW_SESSION_URL + "&request_token=" + mToken.getRequestToken();
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                request, new Response.Listener<String>() {
+                TmdbUrls.getNewSessionUrl(mToken.getRequestToken()), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Gson gson = new Gson();
@@ -167,7 +161,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     private void makeGuestSession() {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                GUEST_SESSION_URL, new Response.Listener<String>() {
+                TmdbUrls.getGuestSessionUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Gson gson = new Gson();

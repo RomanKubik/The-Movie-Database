@@ -17,6 +17,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.models.Token;
 import kubik.roman.moviesdb.R;
 
@@ -25,8 +26,6 @@ import kubik.roman.moviesdb.R;
  */
 public class SplashActivity extends Activity implements Response.Listener<String>, Response.ErrorListener {
 
-    //Requested URL
-    public static final String TOKEN_URL_WITH_API_KEY = "http://api.themoviedb.org/3/authentication/token/new?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
 
     public static final String TAG = SplashActivity.class.getSimpleName();
 
@@ -68,7 +67,7 @@ public class SplashActivity extends Activity implements Response.Listener<String
         RequestQueue queue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TOKEN_URL_WITH_API_KEY, this, this);
+                TmdbUrls.getTokenUrlWithApiKey(), this, this);
 
         queue.add(stringRequest);
     }

@@ -25,9 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.R;
@@ -91,8 +89,6 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private RequestQueue queue;
     private Gson gson;
 
-    private Set<Integer> mRequestsQueue = new HashSet<>();
-
     public static MovieDetailsFragment newInstance(int id) {
 
         MovieDetailsFragment movieDetailsFragment = new MovieDetailsFragment();
@@ -102,20 +98,6 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         movieDetailsFragment.setArguments(args);
 
         return movieDetailsFragment;
-    }
-
-    private void registerRequestInQueue(int requestID) {
-        if (!mRequestsQueue.contains(requestID)) {
-            mRequestsQueue.add(requestID);
-        }
-    }
-
-    private void unregisterRequestFromQueue(int requestID) {
-        mRequestsQueue.remove(requestID);
-
-        if (mRequestsQueue.isEmpty()) {
-            setupViews();
-        }
     }
 
     private void GET(String url, Response.Listener<String> listener,
@@ -144,53 +126,72 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         return view;
     }
 
+    private void initializeViews() {
+        //Backdrop and poster
+        mImvBackdrop = (ImageView) view.findViewById(R.id.iv_title);
+        mImvPoster = (ImageView) view.findViewById(R.id.iv_poster);
+        //Title, rating, genres
+        mTvTitle = (TextView) view.findViewById(R.id.tv_title);
+        mTvRating = (TextView) view.findViewById(R.id.tv_rating);
+        mTvGenres = (TextView) view.findViewById(R.id.tv_genres);
+        //Original title
+        mTvOrigTitle = (TextView) view.findViewById(R.id.tv_orig_title);
+        //Fate, runtime
+        mTvDate = (TextView) view.findViewById(R.id.tv_date);
+        mTvRuntime = (TextView) view.findViewById(R.id.tv_runtime);
+        //Description
+        mTvDescription = (TextView) view.findViewById(R.id.tv_description);
+        //Images
+        mRvPictures = (RecyclerView) view.findViewById(R.id.rv_pictures);
+        //Tagline and budget
+        mTvTagline = (TextView) view.findViewById(R.id.tv_tagline);
+        mTvBudget = (TextView) view.findViewById(R.id.tv_budget);
+        //Casts
+        mRvCasts = (RecyclerView) view.findViewById(R.id.rv_casts);
+        //Companies and countries
+        mTvProdCountries = (TextView) view.findViewById(R.id.tv_countries);
+        mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
+        //Similar movies
+        mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
+
+        Log.d(TAG, "Initialized");
+    }
+
     private void getAllMovieDetails() {
-        final int movieRequest = 1;
-        final int imagesRequest = 2;
-        final int videosRequest = 3;
-        final int reviewsRequest = 4;
-        final int similarRequest = 5;
-        final int movieCredits = 6;
-
         gson = new Gson();
-
-        registerRequestInQueue(movieRequest);
+        //Get Base details
         GET(TmdbUrls.getDetailsUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
                     mMovieDetails = gson.fromJson(response, MovieDetails.class);
                     Log.d(TAG, "Details");
-                    unregisterRequestFromQueue(movieRequest);
+                    setupBaseInfo();
                 }
             }
         }, this);
-
-        registerRequestInQueue(imagesRequest);
+        //Get Images
         GET(TmdbUrls.getImagesUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
                     mMovieImages = gson.fromJson(response, MovieImages.class);
                     Log.d(TAG, "Images");
-                    unregisterRequestFromQueue(imagesRequest);
+                    setupImages();
                 }
             }
         }, this);
-
-        registerRequestInQueue(videosRequest);
+        //Get Videos
         GET(TmdbUrls.getVideosUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
                     mMovieVideos = gson.fromJson(response, MovieVideos.class);
                     Log.d(TAG, "Videos");
-                    unregisterRequestFromQueue(videosRequest);
                 }
             }
         }, this);
-
-        registerRequestInQueue(reviewsRequest);
+        //Get Reviews
         GET(TmdbUrls.getReviewsUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -198,74 +199,42 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
                     Gson gson = new Gson();
                     mMoviesReviews = gson.fromJson(response, MovieReviews.class);
                     Log.d(TAG, "Reviews");
-                    unregisterRequestFromQueue(reviewsRequest);
                 }
             }
         }, this);
-
-        registerRequestInQueue(similarRequest);
-        GET(TmdbUrls.getSimilarListUrl(mMovieId), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    mSimilarMovies = gson.fromJson(response, MoviesList.class);
-                    Log.d(TAG, "Similar");
-                    unregisterRequestFromQueue(similarRequest);
-                }
-            }
-        }, this);
-
-        registerRequestInQueue(movieCredits);
+        //Get Casts
         GET(TmdbUrls.getMovieCredits(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
                     mMovieCredits = gson.fromJson(response, Credits.class);
                     Log.d(TAG, "Similar");
-                    unregisterRequestFromQueue(movieCredits);
+                    setupCasts();
+                }
+            }
+        }, this);
+        //Get Similar movies
+        GET(TmdbUrls.getSimilarListUrl(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                    mSimilarMovies = gson.fromJson(response, MoviesList.class);
+                    Log.d(TAG, "Similar");
+                    setupSimilarMovies();
                 }
             }
         }, this);
 
     }
 
-    private void initializeViews() {
-        mImvBackdrop = (ImageView) view.findViewById(R.id.iv_title);
-
-        mImvPoster = (ImageView) view.findViewById(R.id.iv_poster);
-        mTvTitle = (TextView) view.findViewById(R.id.tv_title);
-        mTvRating = (TextView) view.findViewById(R.id.tv_rating);
-        mTvGenres = (TextView) view.findViewById(R.id.tv_genres);
-
-        mTvOrigTitle = (TextView) view.findViewById(R.id.tv_orig_title);
-
-        mTvDate = (TextView) view.findViewById(R.id.tv_date);
-        mTvRuntime = (TextView) view.findViewById(R.id.tv_runtime);
-
-        mTvDescription = (TextView) view.findViewById(R.id.tv_description);
-
-        mRvPictures = (RecyclerView) view.findViewById(R.id.rv_pictures);
-
-        mTvTagline = (TextView) view.findViewById(R.id.tv_tagline);
-        mTvBudget = (TextView) view.findViewById(R.id.tv_budget);
-
-        mRvCasts = (RecyclerView) view.findViewById(R.id.rv_casts);
-
-        mTvProdCountries = (TextView) view.findViewById(R.id.tv_countries);
-        mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
-
-        mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
-
-        Log.d(TAG, "Initialized");
-    }
-
-    private void setupViews() {
-        Picasso.with(getBaseActivity()).load(TmdbUrls.getBackdropBaseUrl() +
-                mMovieDetails.getBackdropPath()).fit().centerCrop().into(this.mImvBackdrop);
-        Picasso.with(getBaseActivity()).load(TmdbUrls.getPosterBaseUrl() +
-                mMovieDetails.getPosterPath()).fit().centerCrop().into(this.mImvPoster);
+    private void setupBaseInfo() {
+        Picasso.with(getBaseActivity()).load(TmdbUrls.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
+                fit().centerCrop().into(this.mImvBackdrop);
+        Picasso.with(getBaseActivity()).load(TmdbUrls.getPosterBaseUrl(mMovieDetails.getPosterPath()))
+                .fit().centerCrop().into(this.mImvPoster);
         mTvTitle.setText(mMovieDetails.getTitle());
         mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
+
         String genres = getString(R.string.genres) + ": ";
         for (Genre genre : mMovieDetails.getGenres()) {
             genres += genre.getName() + ", ";
@@ -276,6 +245,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             genres = "Unknown";
         }
         mTvGenres.setText(genres);
+
         mTvOrigTitle.setText(mMovieDetails.getOriginalTitle());
         mTvDate.setText(mMovieDetails.getReleaseDate());
         String runtime = String.valueOf(mMovieDetails.getRuntime()) + " " +
@@ -283,45 +253,11 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvRuntime.setText(runtime);
         mTvDescription.setText(mMovieDetails.getOverview());
 
-        mImagesList.clear();
-        mImagesList.addAll(mMovieImages.getBackdrops());
-        ImageListAdapter imageAdapter = new ImageListAdapter(mImagesList, getActivity());
-        mRvPictures.setAdapter(imageAdapter);
-        mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.HORIZONTAL, false));
-
-        mCastsList.clear();
-        mCastsList.addAll(mMovieCredits.getCast());
-        CastsListAdapter castsListAdapter = new CastsListAdapter(mCastsList, getActivity());
-        mRvCasts.setAdapter(castsListAdapter);
-        mRvCasts.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.HORIZONTAL, false));
-        castsListAdapter.SetOnItemClickListener(new CastsListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Log.d(TAG, mCastsList.get(position).getName());
-            }
-        });
-
-        mSimilarMoviesList.clear();
-        mSimilarMoviesList.addAll(mSimilarMovies.getResults());
-        SimilarListAdapter similarListAdapter = new SimilarListAdapter(mSimilarMoviesList, getActivity());
-        mRvSimilar.setAdapter(similarListAdapter);
-        mRvSimilar.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.HORIZONTAL, false));
-        similarListAdapter.SetOnItemClickListener(new SimilarListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                int id = mSimilarMovies.getResults().get(position).getId();
-                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
-                navigateTo(movieDetailsFragment);
-            }
-        });
-
         if (Validator.isStringValid(mMovieDetails.getTagline()))
             mTvTagline.setText(mMovieDetails.getTagline());
 
-        mTvBudget.setText(String.valueOf(mMovieDetails.getBudget()) + getString(R.string.dollars));
+        String budget = String.valueOf(mMovieDetails.getBudget()) + getString(R.string.dollars);
+        mTvBudget.setText(budget);
 
         String str = "";
         for (ProductionCountry tmp: mMovieDetails.getProductionCountries()) {
@@ -344,11 +280,48 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             str = "Unknown";
         }
         mTvProdCompanies.setText(str);
-
-        Log.d(TAG, "Setting up");
-
     }
 
+    private void setupImages() {
+        mImagesList.clear();
+        mImagesList.addAll(mMovieImages.getBackdrops());
+        ImageListAdapter imageAdapter = new ImageListAdapter(mImagesList, getActivity());
+        mRvPictures.setAdapter(imageAdapter);
+        mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+    }
+
+    private void setupCasts() {
+        mCastsList.clear();
+        mCastsList.addAll(mMovieCredits.getCast());
+        CastsListAdapter castsListAdapter = new CastsListAdapter(mCastsList, getActivity());
+        mRvCasts.setAdapter(castsListAdapter);
+        mRvCasts.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+        castsListAdapter.SetOnItemClickListener(new CastsListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d(TAG, mCastsList.get(position).getName());
+            }
+        });
+    }
+
+    private void setupSimilarMovies() {
+        mSimilarMoviesList.clear();
+        mSimilarMoviesList.addAll(mSimilarMovies.getResults());
+        SimilarListAdapter similarListAdapter = new SimilarListAdapter(mSimilarMoviesList, getActivity());
+        mRvSimilar.setAdapter(similarListAdapter);
+        mRvSimilar.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+        similarListAdapter.SetOnItemClickListener(new SimilarListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                int id = mSimilarMovies.getResults().get(position).getId();
+                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
+                navigateTo(movieDetailsFragment);
+            }
+        });
+    }
 
 
 

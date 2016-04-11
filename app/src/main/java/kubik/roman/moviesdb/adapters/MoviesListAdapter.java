@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.models.movies_list.GenresList;
 import kubik.roman.moviesdb.models.movies_list.Movie;
 import kubik.roman.moviesdb.models.movies_list.MoviesList;
@@ -23,9 +24,6 @@ import kubik.roman.moviesdb.util.Validator;
  * Adapter for displaying smoothly ListView using ViewHolder pattern and RecyclerView
  */
 public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.ViewHolder> {
-
-    public static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w300";
-    public static final String BACKDROP_BASE_URL = "http://image.tmdb.org/t/p/w500";
 
     private int lastPosition = -1;
 
@@ -82,8 +80,8 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
             holder.genresString = "Unknown";
         }
         holder.tvGenres.setText(holder.genresString);
-        Picasso.with(mContext).load(BACKDROP_BASE_URL + movie.getBackdropPath()).fit().centerCrop().into(holder.imvTitle);
-        Picasso.with(mContext).load(POSTER_BASE_URL + movie.getPosterPath()).fit().centerCrop().into(holder.imvPoster);
+        Picasso.with(mContext).load(TmdbUrls.getBackdropBaseUrl(movie.getBackdropPath())).fit().centerCrop().into(holder.imvTitle);
+        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl(movie.getPosterPath())).fit().centerCrop().into(holder.imvPoster);
 
         setAnimation(holder.container, position);
     }

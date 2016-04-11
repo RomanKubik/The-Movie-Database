@@ -44,7 +44,8 @@ public class SimilarListAdapter extends RecyclerView.Adapter<SimilarListAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Movie movie = mMovies.get(position);
-        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl() + movie.getPosterPath()).fit().into(holder.imageView);
+        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl(movie.getPosterPath()))
+                .fit().into(holder.imageView);
         holder.textView.setText(movie.getTitle());
     }
 

@@ -13,14 +13,13 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.models.movies_detailes.Cast;
 
 /**
  * Adapter for showing casts
  */
 public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.ViewHolder> {
-
-    public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w300";
 
     private List<Cast> mCasts;
     private Context mContext;
@@ -44,7 +43,7 @@ public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Cast cast = mCasts.get(position);
-        Picasso.with(mContext).load(IMAGE_BASE_URL + cast.getProfilePath()).fit().into(holder.imageView);
+        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl(cast.getProfilePath())).fit().into(holder.imageView);
         holder.textView.setText(cast.getName());
     }
 
