@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="5dp">
+    android:paddingBottom="@dimen/spacing_tiny"
+    android:background="@color/white"
+    android:id="@+id/list_item">
 
     <ImageView
         android:id="@+id/iv_title"
@@ -14,16 +17,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginBottom="@dimen/spacing_tiny"
+        android:layout_marginLeft="@dimen/spacing_tiny"
+        android:layout_marginTop="@dimen/spacing_tiny"
         android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/iv_poster"
             android:layout_width="100dp"
             android:layout_height="150dp"
-            android:layout_marginRight="5dp"
+            android:layout_marginRight="@dimen/spacing_tiny"
             android:background="#00ff00" />
 
         <LinearLayout
@@ -35,19 +38,33 @@
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="30sp" />
+                android:textSize="@dimen/text_size_large_plus"
+                android:textColor="@color/black"/>
 
-            <TextView
-                android:id="@+id/tvRating"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/rate"/>
+                <TextView
+                    android:id="@+id/tv_rating"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_medium"
+                    android:textColor="@color/tmdb_base"/>
+
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tvGenres"
+                android:id="@+id/tv_genres"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="15sp" />
+                android:textSize="@dimen/text_size_questions"
+                android:textColor="@color/tmdb_base"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -29,14 +29,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.adapters.CastsListAdapter;
 import kubik.roman.moviesdb.adapters.ImageListAdapter;
 import kubik.roman.moviesdb.models.Genre;
+import kubik.roman.moviesdb.models.movies_detailes.Cast;
+import kubik.roman.moviesdb.models.movies_detailes.Credits;
 import kubik.roman.moviesdb.models.movies_detailes.Image;
 import kubik.roman.moviesdb.models.movies_detailes.MovieDetails;
 import kubik.roman.moviesdb.models.movies_detailes.MovieImages;
 import kubik.roman.moviesdb.models.movies_detailes.MovieReviews;
 import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
+import kubik.roman.moviesdb.models.movies_detailes.ProductionCompany;
+import kubik.roman.moviesdb.models.movies_detailes.ProductionCountry;
 import kubik.roman.moviesdb.util.Validator;
 
 /**
@@ -46,24 +52,13 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
 
     public static final String TAG = MovieDetailsFragment.class.getName();
 
-    public static final String MOVIE_DETAILS_URL = "http://api.themoviedb.org/3/movie/";
-    public static final String MOVIE_IMAGES = "/images";
-    public static final String MOVIE_VIDEOS = "/videos";
-    public static final String MOVIE_REVIEWS = "/reviews";
-    public static final String MOVIE_SIMILAR = "/similar";
-    public static final String API_KEY = "?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-
-    public static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w300";
-    public static final String BACKDROP_BASE_URL = "http://image.tmdb.org/t/p/w500";
-
     public static final String ID = "id";
 
     private MovieDetails mMovieDetails;
     private MovieImages mMovieImages;
     private MovieVideos mMovieVideos;
     private MovieReviews mMoviesReviews;
-
-    private ImageListAdapter mImageAdapter;
+    private Credits mMovieCredits;
 
     private int mMovieId;
 
@@ -86,8 +81,10 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private RecyclerView mRvSimilar;
 
     private List<Image> mImageList = new ArrayList<>();
+    private List<Cast> mCastsList = new ArrayList<>();
 
     private RequestQueue queue;
+    Gson gson;
 
     private Set<Integer> mRequestsQueue = new HashSet<>();
 
@@ -116,6 +113,12 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         }
     }
 
+    private void GET(String url, Response.Listener<String> listener,
+                     Response.ErrorListener errorListener) {
+        StringRequest request = new StringRequest(Request.Method.GET, url, listener, errorListener);
+        queue.add(request);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,7 +129,8 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.movie_details_fragment, container, false);
         Log.d(TAG, "onCreateView1");
         initializeViews();
@@ -136,141 +140,125 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     }
 
     private void getAllMovieDetails() {
-        getMovieDetails();
-        getMovieImages();
-        getMovieVideos();
-        getMovieReviews();
-        getMovieSimilar();
-    }
-
-    private void getMovieDetails() {
         final int movieRequest = 1;
-        registerRequestInQueue(movieRequest);
-        String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + API_KEY;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if (Validator.isStringValid(response)) {
-                            unregisterRequestFromQueue(movieRequest);
-                            Gson gson = new Gson();
-                            mMovieDetails = gson.fromJson(response, MovieDetails.class);
-                            Log.d(TAG, "Details");
-
-                        }
-                    }
-                }, this);
-        queue.add(stringRequest);
-    }
-
-
-    private void GET(String url, Response.Listener<String> listener, Response.ErrorListener errorListener) {
-        StringRequest request = new StringRequest(Request.Method.GET, url, listener, errorListener);
-        queue.add(request);
-    }
-
-    private void getMovieImages() {
         final int imagesRequest = 2;
-        registerRequestInQueue(imagesRequest);
-        String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_IMAGES + API_KEY;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-                        mMovieImages = gson.fromJson(response, MovieImages.class);
-                        Log.d(TAG, "Images");
-
-                        unregisterRequestFromQueue(imagesRequest);
-                    }
-                }, this);
-        queue.add(stringRequest);
-    }
-
-    private void getMovieVideos() {
-        final int videoRequest = 3;
-        registerRequestInQueue(videoRequest);
-        String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_VIDEOS + API_KEY;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-                        mMovieVideos = gson.fromJson(response, MovieVideos.class);
-                        Log.d(TAG, "Videos");
-                        unregisterRequestFromQueue(videoRequest);
-                    }
-                }, this);
-        queue.add(stringRequest);
-    }
-
-    private void getMovieReviews() {
+        final int videosRequest = 3;
         final int reviewsRequest = 4;
-        registerRequestInQueue(reviewsRequest);
-        String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_REVIEWS + API_KEY;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-                        mMoviesReviews = gson.fromJson(response, MovieReviews.class);
-                        Log.d(TAG, "Reviews");
-                        unregisterRequestFromQueue(reviewsRequest);
-                    }
-                }, this);
-        queue.add(stringRequest);
-    }
+        final int similarRequest = 5;
+        final int movieCredits = 6;
 
-    private void getMovieSimilar() {
-        final int similarRequest = 6;
+        gson = new Gson();
+
+        registerRequestInQueue(movieRequest);
+        GET(TmdbUrls.getDetailsUrl(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                    mMovieDetails = gson.fromJson(response, MovieDetails.class);
+                    Log.d(TAG, "Details");
+                    unregisterRequestFromQueue(movieRequest);
+                }
+            }
+        }, this);
+
+        registerRequestInQueue(imagesRequest);
+        GET(TmdbUrls.getImagesUrl(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                    mMovieImages = gson.fromJson(response, MovieImages.class);
+                    Log.d(TAG, "Images");
+                    unregisterRequestFromQueue(imagesRequest);
+                }
+            }
+        }, this);
+
+        registerRequestInQueue(videosRequest);
+        GET(TmdbUrls.getVideosUrl(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                    mMovieVideos = gson.fromJson(response, MovieVideos.class);
+                    Log.d(TAG, "Videos");
+                    unregisterRequestFromQueue(videosRequest);
+                }
+            }
+        }, this);
+
+        registerRequestInQueue(reviewsRequest);
+        GET(TmdbUrls.getReviewsUrl(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                    Gson gson = new Gson();
+                    mMoviesReviews = gson.fromJson(response, MovieReviews.class);
+                    Log.d(TAG, "Reviews");
+                    unregisterRequestFromQueue(reviewsRequest);
+                }
+            }
+        }, this);
+
         registerRequestInQueue(similarRequest);
-        String url = MOVIE_DETAILS_URL + String.valueOf(mMovieId) + MOVIE_SIMILAR + API_KEY;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        unregisterRequestFromQueue(similarRequest);
-                        Log.d(TAG, "Similar");
-                    }
-                }, this);
-        queue.add(stringRequest);
+        GET(TmdbUrls.getSimilarListUrl(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                   // mMovie= gson.fromJson(response, MovieImages.class);
+                    Log.d(TAG, "Similar");
+                    unregisterRequestFromQueue(similarRequest);
+                }
+            }
+        }, this);
+
+        registerRequestInQueue(movieCredits);
+        GET(TmdbUrls.getMovieCredits(mMovieId), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (Validator.isStringValid(response)) {
+                    mMovieCredits = gson.fromJson(response, Credits.class);
+                    Log.d(TAG, "Similar");
+                    unregisterRequestFromQueue(movieCredits);
+                }
+            }
+        }, this);
+
     }
 
     private void initializeViews() {
-        mImvBackdrop = (ImageView) view.findViewById(R.id.iv_backdrop);
+        mImvBackdrop = (ImageView) view.findViewById(R.id.iv_title);
+
         mImvPoster = (ImageView) view.findViewById(R.id.iv_poster);
         mTvTitle = (TextView) view.findViewById(R.id.tv_title);
         mTvRating = (TextView) view.findViewById(R.id.tv_rating);
         mTvGenres = (TextView) view.findViewById(R.id.tv_genres);
+
         mTvOrigTitle = (TextView) view.findViewById(R.id.tv_orig_title);
+
         mTvDate = (TextView) view.findViewById(R.id.tv_date);
         mTvRuntime = (TextView) view.findViewById(R.id.tv_runtime);
+
         mTvDescription = (TextView) view.findViewById(R.id.tv_description);
 
         mRvPictures = (RecyclerView) view.findViewById(R.id.rv_pictures);
-       /* final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-       */
-
-
 
         mTvTagline = (TextView) view.findViewById(R.id.tv_tagline);
         mTvBudget = (TextView) view.findViewById(R.id.tv_budget);
+
         mRvCasts = (RecyclerView) view.findViewById(R.id.rv_casts);
+
         mTvProdCountries = (TextView) view.findViewById(R.id.tv_countries);
         mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
+
         mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
 
-        Log.d(TAG, "Initializing");
-
-
+        Log.d(TAG, "Initialized");
     }
 
     private void setupViews() {
-        Picasso.with(getBaseActivity()).load(BACKDROP_BASE_URL + mMovieDetails.getBackdropPath()).
-                fit().centerCrop().into(this.mImvBackdrop);
-        Picasso.with(getBaseActivity()).load(POSTER_BASE_URL + mMovieDetails.getPosterPath()).
-                fit().centerCrop().into(this.mImvPoster);
+        Picasso.with(getBaseActivity()).load(TmdbUrls.getBackdropBaseUrl() +
+                mMovieDetails.getBackdropPath()).fit().centerCrop().into(this.mImvBackdrop);
+        Picasso.with(getBaseActivity()).load(TmdbUrls.getPosterBaseUrl() +
+                mMovieDetails.getPosterPath()).fit().centerCrop().into(this.mImvPoster);
         mTvTitle.setText(mMovieDetails.getTitle());
         mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
         String genres = getString(R.string.genres) + ": ";
@@ -280,19 +268,48 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvGenres.setText(genres);
         mTvOrigTitle.setText(mMovieDetails.getOriginalTitle());
         mTvDate.setText(mMovieDetails.getReleaseDate());
-        String runtime = String.valueOf(mMovieDetails.getRuntime()) + " " + getString(R.string.minutes);
+        String runtime = String.valueOf(mMovieDetails.getRuntime()) + " " +
+                getString(R.string.minutes);
         mTvRuntime.setText(runtime);
         mTvDescription.setText(mMovieDetails.getOverview());
 
         mImageList.clear();
         mImageList.addAll(mMovieImages.getBackdrops());
-        mImageAdapter = new ImageListAdapter(mImageList, getActivity());
-        mRvPictures.setAdapter(mImageAdapter);
-        mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-       // mImageAdapter.notifyDataSetChanged();
+        ImageListAdapter imageAdapter = new ImageListAdapter(mImageList, getActivity());
+        mRvPictures.setAdapter(imageAdapter);
+        mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
 
-        mTvTagline.setText(mMovieDetails.getTagline());
+        mCastsList.clear();
+        mCastsList.addAll(mMovieCredits.getCast());
+        CastsListAdapter castsListAdapter = new CastsListAdapter(mCastsList, getActivity());
+        mRvCasts.setAdapter(castsListAdapter);
+        mRvCasts.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+        castsListAdapter.SetOnItemClickListener(new CastsListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d(TAG, mCastsList.get(position).getName());
+            }
+        });
+
+        if (Validator.isStringValid(mMovieDetails.getTagline()))
+            mTvTagline.setText(mMovieDetails.getTagline());
+
         mTvBudget.setText(String.valueOf(mMovieDetails.getBudget()));
+
+        String str = "";
+        for (ProductionCountry tmp: mMovieDetails.getProductionCountries()) {
+            str += tmp.getName() + " ";
+        }
+        mTvProdCountries.setText(str);
+
+        str = "";
+        for (ProductionCompany tmp: mMovieDetails.getProductionCompanies()) {
+            str += tmp.getName() + " ";
+        }
+        mTvProdCompanies.setText(str);
+
         Log.d(TAG, "Setting up");
 
     }

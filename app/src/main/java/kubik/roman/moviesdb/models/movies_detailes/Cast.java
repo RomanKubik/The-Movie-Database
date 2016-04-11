@@ -10,7 +10,7 @@ public class Cast {
     private int castId;
     private String character;
     @SerializedName("credit_id")
-    private int creditId;
+    private String creditId;
     private int id;
     private String name;
     private int order;
@@ -33,11 +33,11 @@ public class Cast {
         this.character = character;
     }
 
-    public int getCreditId() {
+    public String getCreditId() {
         return creditId;
     }
 
-    public void setCreditId(int creditId) {
+    public void setCreditId(String creditId) {
         this.creditId = creditId;
     }
 

@@ -2,12 +2,12 @@ package kubik.roman.moviesdb.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -22,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.adapters.MovieListAdapter;
+import kubik.roman.moviesdb.adapters.MoviesListAdapter;
 import kubik.roman.moviesdb.models.movies_list.GenresList;
 import kubik.roman.moviesdb.models.movies_list.Movie;
 import kubik.roman.moviesdb.models.movies_list.MoviesList;
@@ -30,7 +30,7 @@ import kubik.roman.moviesdb.models.movies_list.MoviesList;
 /**
  * Fragment for displaying main list
  */
-public class MainListFragment extends BaseFragment implements Response.ErrorListener, AdapterView.OnItemClickListener {
+public class MainListFragment extends BaseFragment implements Response.ErrorListener {
 
     public static final String GENRES_LIST_URL = "http://api.themoviedb.org/3/genre/movie/list?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
     public static final String MOVIES_LIST_TOP_RATE_URL = "http://api.themoviedb.org/3/movie/top_rated?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
@@ -85,10 +85,22 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
     }
 
     private void showMoviesList() {
-        MovieListAdapter adapter = new MovieListAdapter(mMoviesList, mGenresList, getBaseActivity());
-        ListView listView = (ListView) view.findViewById(R.id.lvTitle);
-        listView.setOnItemClickListener(this);
-        listView.setAdapter(adapter);
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_title);
+        MoviesListAdapter moviesListAdapter = new MoviesListAdapter(mMoviesList, mGenresList, getActivity());
+        recyclerView.setAdapter(moviesListAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+
+        moviesListAdapter.SetOnItemClickListener(new MoviesListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Movie movie = mMoviesList.getResults().get(position);
+                Log.d("MOVIE :: ", movie.toString());
+
+                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(movie.getId());
+                navigateTo(movieDetailsFragment);
+            }
+        });
     }
 
     @Override
@@ -123,13 +135,5 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
         return trimmedString;
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Movie movie = (Movie) parent.getItemAtPosition(position);
-        Log.d("MOVIE :: ", movie.toString());
-
-        MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(movie.getId());
-        navigateTo(movieDetailsFragment);
-    }
 
 }

@@ -12,15 +12,18 @@
     <string name="genres">Genres</string>
     <string name="minutes">min</string>
 
-    <string name="release_date">Release date</string>
-    <string name="pictures">Pictures</string>
-    <string name="production_companies">Production countries</string>
-    <string name="production_countries">Production countries</string>
-    <string name="tagline">Tagline</string>
-    <string name="runtime">Runtime</string>
-    <string name="original_title">Original title</string>
-    <string name="budget">Budget</string>
-    <string name="spoken_languages">Spoken languages</string>
-    <string name="reviews">Reviews</string>
+    <string name="release_date">Release date:</string>
+    <string name="pictures">Pictures:</string>
+    <string name="production_companies">Production companies:</string>
+    <string name="production_countries">Production countries:</string>
+    <string name="tagline">Tagline:</string>
+    <string name="runtime">Runtime:</string>
+    <string name="original_title">Original title:</string>
+    <string name="budget">Budget:</string>
+    <string name="spoken_languages">Spoken languages:</string>
+    <string name="reviews">Reviews:</string>
+    <string name="casts">Casts:</string>
+
+    <string name="no_tagline">No tagline</string>
 
 </resources>

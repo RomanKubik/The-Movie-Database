@@ -12,7 +12,7 @@ public class Validator {
     private Validator() {
     }
 
-    private static Validator newInstance() {
+    private static Validator getInstance() {
         if (instance == null) {
             instance = new Validator();
         }
