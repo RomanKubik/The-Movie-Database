@@ -33,6 +33,7 @@ import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.adapters.CastsListAdapter;
 import kubik.roman.moviesdb.adapters.ImageListAdapter;
+import kubik.roman.moviesdb.adapters.SimilarListAdapter;
 import kubik.roman.moviesdb.models.Genre;
 import kubik.roman.moviesdb.models.movies_detailes.Cast;
 import kubik.roman.moviesdb.models.movies_detailes.Credits;
@@ -43,6 +44,8 @@ import kubik.roman.moviesdb.models.movies_detailes.MovieReviews;
 import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
 import kubik.roman.moviesdb.models.movies_detailes.ProductionCompany;
 import kubik.roman.moviesdb.models.movies_detailes.ProductionCountry;
+import kubik.roman.moviesdb.models.movies_list.Movie;
+import kubik.roman.moviesdb.models.movies_list.MoviesList;
 import kubik.roman.moviesdb.util.Validator;
 
 /**
@@ -59,6 +62,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private MovieVideos mMovieVideos;
     private MovieReviews mMoviesReviews;
     private Credits mMovieCredits;
+    private MoviesList mSimilarMovies;
 
     private int mMovieId;
 
@@ -80,11 +84,12 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private TextView mTvProdCompanies;
     private RecyclerView mRvSimilar;
 
-    private List<Image> mImageList = new ArrayList<>();
+    private List<Image> mImagesList = new ArrayList<>();
     private List<Cast> mCastsList = new ArrayList<>();
+    private List<Movie> mSimilarMoviesList = new ArrayList<>();
 
     private RequestQueue queue;
-    Gson gson;
+    private Gson gson;
 
     private Set<Integer> mRequestsQueue = new HashSet<>();
 
@@ -203,7 +208,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
-                   // mMovie= gson.fromJson(response, MovieImages.class);
+                    mSimilarMovies = gson.fromJson(response, MoviesList.class);
                     Log.d(TAG, "Similar");
                     unregisterRequestFromQueue(similarRequest);
                 }
@@ -263,7 +268,12 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
         String genres = getString(R.string.genres) + ": ";
         for (Genre genre : mMovieDetails.getGenres()) {
-            genres += genre.getName() + "  ";
+            genres += genre.getName() + ", ";
+        }
+        if (Validator.isStringValid(genres)) {
+            genres = genres.substring(0, genres.length() - 2);
+        } else {
+            genres = "Unknown";
         }
         mTvGenres.setText(genres);
         mTvOrigTitle.setText(mMovieDetails.getOriginalTitle());
@@ -273,9 +283,9 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvRuntime.setText(runtime);
         mTvDescription.setText(mMovieDetails.getOverview());
 
-        mImageList.clear();
-        mImageList.addAll(mMovieImages.getBackdrops());
-        ImageListAdapter imageAdapter = new ImageListAdapter(mImageList, getActivity());
+        mImagesList.clear();
+        mImagesList.addAll(mMovieImages.getBackdrops());
+        ImageListAdapter imageAdapter = new ImageListAdapter(mImagesList, getActivity());
         mRvPictures.setAdapter(imageAdapter);
         mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.HORIZONTAL, false));
@@ -293,20 +303,45 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         });
 
+        mSimilarMoviesList.clear();
+        mSimilarMoviesList.addAll(mSimilarMovies.getResults());
+        SimilarListAdapter similarListAdapter = new SimilarListAdapter(mSimilarMoviesList, getActivity());
+        mRvSimilar.setAdapter(similarListAdapter);
+        mRvSimilar.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+        similarListAdapter.SetOnItemClickListener(new SimilarListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                int id = mSimilarMovies.getResults().get(position).getId();
+                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
+                navigateTo(movieDetailsFragment);
+            }
+        });
+
         if (Validator.isStringValid(mMovieDetails.getTagline()))
             mTvTagline.setText(mMovieDetails.getTagline());
 
-        mTvBudget.setText(String.valueOf(mMovieDetails.getBudget()));
+        mTvBudget.setText(String.valueOf(mMovieDetails.getBudget()) + getString(R.string.dollars));
 
         String str = "";
         for (ProductionCountry tmp: mMovieDetails.getProductionCountries()) {
-            str += tmp.getName() + " ";
+            str += tmp.getName() + ", ";
+        }
+        if (Validator.isStringValid(str)) {
+            str = str.substring(0, str.length() - 2);
+        } else {
+            str = "Unknown";
         }
         mTvProdCountries.setText(str);
 
         str = "";
         for (ProductionCompany tmp: mMovieDetails.getProductionCompanies()) {
-            str += tmp.getName() + " ";
+            str += tmp.getName() + ", ";
+        }
+        if (Validator.isStringValid(str)) {
+            str = str.substring(0, str.length() - 2);
+        } else {
+            str = "Unknown";
         }
         mTvProdCompanies.setText(str);
 

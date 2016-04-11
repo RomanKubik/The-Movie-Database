@@ -23,6 +23,8 @@
     <string name="spoken_languages">Spoken languages:</string>
     <string name="reviews">Reviews:</string>
     <string name="casts">Casts:</string>
+    <string name="similar">Something similar:</string>
+    <string name="dollars">\t $$$</string>
 
     <string name="no_tagline">No tagline</string>
 

@@ -8,24 +8,22 @@ import org.json.JSONObject;
  */
 public class ProductionCompany {
 
-    public static final String NAME = "name";
-    public static final String ID = "id";
-
-    private String mName;
-    private int mId;
-
-    public void setProductionCompanyFromJson(String jsonStr) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonStr);
-
-        mName = jsonObject.getString(NAME);
-        mId = jsonObject.getInt(ID);
-    }
+    private String name;
+    private int id;
 
     public String getName() {
-        return mName;
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getId() {
-        return mId;
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

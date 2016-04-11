@@ -17,6 +17,7 @@ import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.models.movies_list.GenresList;
 import kubik.roman.moviesdb.models.movies_list.Movie;
 import kubik.roman.moviesdb.models.movies_list.MoviesList;
+import kubik.roman.moviesdb.util.Validator;
 
 /**
  * Adapter for displaying smoothly ListView using ViewHolder pattern and RecyclerView
@@ -35,39 +36,6 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
 
     public static GenresList mGenresList;
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        TextView tvTitle;
-        TextView tvRating;
-        TextView tvGenres;
-        ImageView imvTitle;
-        ImageView imvPoster;
-        String genresString;
-
-        LinearLayout container;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            container = (LinearLayout) itemView.findViewById(R.id.list_item);
-
-            this.tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
-            this.tvRating = (TextView) itemView.findViewById(R.id.tv_rating);
-            this.tvGenres = (TextView) itemView.findViewById(R.id.tv_genres);
-            this.imvTitle = (ImageView) itemView.findViewById(R.id.iv_title);
-            this.imvPoster = (ImageView) itemView.findViewById(R.id.iv_poster);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (mItemClickListener != null) {
-                mItemClickListener.onItemClick(v, getPosition());
-            }
-        }
-
-    }
 
     public interface OnItemClickListener {
         void onItemClick(View view , int position);
@@ -103,10 +71,15 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
         for (int i = 0; i < movie.getGenreIds().size(); i++) {
             for (int j = 0; j < mGenresList.getGenres().size(); j++) {
                 if (mGenresList.getGenres().get(j).getId() == movie.getGenreIds().get(i)) {
-                    holder.genresString += mGenresList.getGenres().get(j).getName() + "  ";
+                    holder.genresString += mGenresList.getGenres().get(j).getName() + ", ";
                     break;
                 }
             }
+        }
+        if (Validator.isStringValid(holder.genresString)) {
+            holder.genresString = holder.genresString.substring(0, holder.genresString.length() - 2);
+        } else {
+            holder.genresString = "Unknown";
         }
         holder.tvGenres.setText(holder.genresString);
         Picasso.with(mContext).load(BACKDROP_BASE_URL + movie.getBackdropPath()).fit().centerCrop().into(holder.imvTitle);
@@ -127,6 +100,40 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
             container.startAnimation(animation);
             lastPosition = position;
         }
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        TextView tvTitle;
+        TextView tvRating;
+        TextView tvGenres;
+        ImageView imvTitle;
+        ImageView imvPoster;
+        String genresString;
+
+        LinearLayout container;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            container = (LinearLayout) itemView.findViewById(R.id.list_item);
+
+            this.tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
+            this.tvRating = (TextView) itemView.findViewById(R.id.tv_rating);
+            this.tvGenres = (TextView) itemView.findViewById(R.id.tv_genres);
+            this.imvTitle = (ImageView) itemView.findViewById(R.id.iv_title);
+            this.imvPoster = (ImageView) itemView.findViewById(R.id.iv_poster);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mItemClickListener != null) {
+                mItemClickListener.onItemClick(v, getPosition());
+            }
+        }
+
     }
 
 

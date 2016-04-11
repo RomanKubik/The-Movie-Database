@@ -221,6 +221,19 @@
             android:textSize="@dimen/text_size_medium"
             android:textColor="@color/black"
             android:layout_marginLeft="@dimen/spacing_tiny"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:layout_marginLeft="@dimen/spacing_tiny"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/similar"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/black"
+            android:layout_marginLeft="@dimen/spacing_tiny"/>
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

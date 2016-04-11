@@ -13,22 +13,22 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.TmdbUrls;
 import kubik.roman.moviesdb.models.movies_detailes.Cast;
+import kubik.roman.moviesdb.models.movies_list.Movie;
 
 /**
- * Adapter for showing casts
+ * Created by roman on 4/12/2016.
  */
-public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.ViewHolder> {
+public class SimilarListAdapter extends RecyclerView.Adapter<SimilarListAdapter.ViewHolder> {
 
-    public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w300";
-
-    private List<Cast> mCasts;
+    private List<Movie> mMovies;
     private Context mContext;
 
     private OnItemClickListener mItemClickListener;
 
-    public CastsListAdapter(List<Cast> casts, Context context) {
-        this.mCasts = casts;
+    public SimilarListAdapter(List<Movie> movies, Context context) {
+        this.mMovies = movies;
         this.mContext = context;
     }
 
@@ -43,15 +43,15 @@ public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Cast cast = mCasts.get(position);
-        Picasso.with(mContext).load(IMAGE_BASE_URL + cast.getProfilePath()).fit().into(holder.imageView);
-        holder.textView.setText(cast.getName());
+        Movie movie = mMovies.get(position);
+        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl() + movie.getPosterPath()).fit().into(holder.imageView);
+        holder.textView.setText(movie.getTitle());
     }
 
     @Override
     public int getItemCount() {
-        if (mCasts.size() > 10) return 10;
-        else return mCasts.size();
+        if (mMovies.size() > 10) return 10;
+        else return mMovies.size();
 
     }
 

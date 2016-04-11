@@ -20,9 +20,9 @@ public class MovieDetails extends Movie {
     private String homepage;
     @SerializedName("imdb_id")
     private String imdbId;
-    @SerializedName("production_company")
+    @SerializedName("production_companies")
     private List<ProductionCompany> productionCompanies = new ArrayList<>();
-    @SerializedName("production_country")
+    @SerializedName("production_countries")
     private List<ProductionCountry> productionCountries = new ArrayList<>();
     private String revenue;
     private int runtime;
