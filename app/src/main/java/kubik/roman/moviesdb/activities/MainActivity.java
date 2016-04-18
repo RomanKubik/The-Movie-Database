@@ -14,7 +14,6 @@ public class MainActivity extends AppCompatActivity {
     private String mSessionType;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
 
         loadFragment(new MainListFragment());
     }
-
 
 
     private void getIntents() {
@@ -51,10 +49,12 @@ public class MainActivity extends AppCompatActivity {
         Fragment currentFragment = getFragmentManager().findFragmentById(R.id.content_frame);
 
         if (currentFragment instanceof MainListFragment) {
+            MainActivity.this.finish();
+        } else {
+            getFragmentManager().popBackStackImmediate();
 
         }
 
-        getFragmentManager().popBackStackImmediate();
     }
 
 

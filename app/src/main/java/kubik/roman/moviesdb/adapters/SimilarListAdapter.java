@@ -13,8 +13,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.TmdbUrls;
-import kubik.roman.moviesdb.models.movies_detailes.Cast;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.movies_list.Movie;
 
 /**
@@ -44,7 +43,7 @@ public class SimilarListAdapter extends RecyclerView.Adapter<SimilarListAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Movie movie = mMovies.get(position);
-        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl(movie.getPosterPath()))
+        Picasso.with(mContext).load(TmdbUrlBuilder.getPosterBaseUrl(movie.getPosterPath()))
                 .fit().into(holder.imageView);
         holder.textView.setText(movie.getTitle());
     }

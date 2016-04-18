@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.TmdbUrls;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.movies_detailes.Cast;
 
 /**
@@ -43,7 +43,7 @@ public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Cast cast = mCasts.get(position);
-        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl(cast.getProfilePath())).fit().into(holder.imageView);
+        Picasso.with(mContext).load(TmdbUrlBuilder.getPosterBaseUrl(cast.getProfilePath())).fit().into(holder.imageView);
         holder.textView.setText(cast.getName());
     }
 

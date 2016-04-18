@@ -27,7 +27,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import kubik.roman.moviesdb.TmdbUrls;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.adapters.CastsListAdapter;
 import kubik.roman.moviesdb.adapters.ImageListAdapter;
@@ -160,7 +160,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private void getAllMovieDetails() {
         gson = new Gson();
         //Get Base details
-        GET(TmdbUrls.getDetailsUrl(mMovieId), new Response.Listener<String>() {
+        GET(TmdbUrlBuilder.getDetailsUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
@@ -171,7 +171,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         }, this);
         //Get Images
-        GET(TmdbUrls.getImagesUrl(mMovieId), new Response.Listener<String>() {
+        GET(TmdbUrlBuilder.getImagesUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
@@ -182,7 +182,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         }, this);
         //Get Videos
-        GET(TmdbUrls.getVideosUrl(mMovieId), new Response.Listener<String>() {
+        GET(TmdbUrlBuilder.getVideosUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
@@ -192,7 +192,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         }, this);
         //Get Reviews
-        GET(TmdbUrls.getReviewsUrl(mMovieId), new Response.Listener<String>() {
+        GET(TmdbUrlBuilder.getReviewsUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
@@ -203,7 +203,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         }, this);
         //Get Casts
-        GET(TmdbUrls.getMovieCredits(mMovieId), new Response.Listener<String>() {
+        GET(TmdbUrlBuilder.getMovieCredits(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
@@ -214,7 +214,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         }, this);
         //Get Similar movies
-        GET(TmdbUrls.getSimilarListUrl(mMovieId), new Response.Listener<String>() {
+        GET(TmdbUrlBuilder.getSimilarListUrl(mMovieId), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (Validator.isStringValid(response)) {
@@ -228,9 +228,9 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     }
 
     private void setupBaseInfo() {
-        Picasso.with(getBaseActivity()).load(TmdbUrls.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
+        Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
                 fit().centerCrop().into(this.mImvBackdrop);
-        Picasso.with(getBaseActivity()).load(TmdbUrls.getPosterBaseUrl(mMovieDetails.getPosterPath()))
+        Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getPosterBaseUrl(mMovieDetails.getPosterPath()))
                 .fit().centerCrop().into(this.mImvPoster);
         mTvTitle.setText(mMovieDetails.getTitle());
         mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
@@ -289,6 +289,13 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mRvPictures.setAdapter(imageAdapter);
         mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.HORIZONTAL, false));
+
+        imageAdapter.SetOnItemClickListener(new ImageListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+
+            }
+        });
     }
 
     private void setupCasts() {

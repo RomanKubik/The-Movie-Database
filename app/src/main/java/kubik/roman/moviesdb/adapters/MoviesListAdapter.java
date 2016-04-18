@@ -13,11 +13,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.TmdbUrls;
-import kubik.roman.moviesdb.models.movies_list.GenresList;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
+import kubik.roman.moviesdb.models.Genre;
 import kubik.roman.moviesdb.models.movies_list.Movie;
-import kubik.roman.moviesdb.models.movies_list.MoviesList;
 import kubik.roman.moviesdb.util.Validator;
 
 /**
@@ -27,12 +28,12 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
 
     private int lastPosition = -1;
 
-    private MoviesList mMoviesList;
+    private List<Movie> mMoviesList;
     private Context mContext;
 
     private OnItemClickListener mItemClickListener;
 
-    public static GenresList mGenresList;
+    private static List<Genre> mGenresList;
 
 
     public interface OnItemClickListener {
@@ -43,7 +44,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
         this.mItemClickListener = mItemClickListener;
     }
 
-    public MoviesListAdapter(MoviesList moviesList, GenresList genresList, Context context) {
+    public MoviesListAdapter(List<Movie> moviesList, List<Genre> genresList, Context context) {
         this.mMoviesList = moviesList;
         mGenresList = genresList;
         this.mContext = context;
@@ -61,15 +62,15 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Movie movie = mMoviesList.getResults().get(position);
+        Movie movie = mMoviesList.get(position);
         holder.tvTitle.setText(movie.getTitle());
         holder.tvRating.setText(String.valueOf(movie.getVoteAverage()));
         holder.genresString = mContext.getString(R.string.genres) + ": ";
 
         for (int i = 0; i < movie.getGenreIds().size(); i++) {
-            for (int j = 0; j < mGenresList.getGenres().size(); j++) {
-                if (mGenresList.getGenres().get(j).getId() == movie.getGenreIds().get(i)) {
-                    holder.genresString += mGenresList.getGenres().get(j).getName() + ", ";
+            for (int j = 0; j < mGenresList.size(); j++) {
+                if (mGenresList.get(j).getId() == movie.getGenreIds().get(i)) {
+                    holder.genresString += mGenresList.get(j).getName() + ", ";
                     break;
                 }
             }
@@ -80,15 +81,15 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
             holder.genresString = "Unknown";
         }
         holder.tvGenres.setText(holder.genresString);
-        Picasso.with(mContext).load(TmdbUrls.getBackdropBaseUrl(movie.getBackdropPath())).fit().centerCrop().into(holder.imvTitle);
-        Picasso.with(mContext).load(TmdbUrls.getPosterBaseUrl(movie.getPosterPath())).fit().centerCrop().into(holder.imvPoster);
+        Picasso.with(mContext).load(TmdbUrlBuilder.getBackdropBaseUrl(movie.getBackdropPath())).fit().centerCrop().into(holder.imvTitle);
+        Picasso.with(mContext).load(TmdbUrlBuilder.getPosterBaseUrl(movie.getPosterPath())).fit().centerCrop().into(holder.imvPoster);
 
         setAnimation(holder.container, position);
     }
 
     @Override
     public int getItemCount() {
-        return mMoviesList.getResults().size();
+        return mMoviesList.size();
     }
 
     private void setAnimation(LinearLayout container, int position) {
@@ -122,6 +123,7 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
             this.tvGenres = (TextView) itemView.findViewById(R.id.tv_genres);
             this.imvTitle = (ImageView) itemView.findViewById(R.id.iv_title);
             this.imvPoster = (ImageView) itemView.findViewById(R.id.iv_poster);
+
             itemView.setOnClickListener(this);
         }
 
@@ -132,7 +134,13 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
             }
         }
 
+        public void clearAnimation() {
+            container.clearAnimation();
+        }
     }
 
-
+    @Override
+    public void onViewDetachedFromWindow(ViewHolder holder) {
+        ((ViewHolder)holder).clearAnimation();
+    }
 }

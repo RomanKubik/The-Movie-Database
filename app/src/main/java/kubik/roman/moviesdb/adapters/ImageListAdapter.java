@@ -12,7 +12,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.TmdbUrls;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.movies_detailes.Image;
 
 /**
@@ -23,13 +23,14 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     private List<Image> mImage;
     private Context mContext;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView imageView;
+    private OnItemClickListener mItemClickListener;
 
-        public ViewHolder(View itemView) {
-            super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.img);
-        }
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
+        this.mItemClickListener = mItemClickListener;
     }
 
     public ImageListAdapter(List<Image> image, Context context) {
@@ -49,7 +50,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Image image = mImage.get(position);
-        Picasso.with(mContext).load(TmdbUrls.getBackdropBaseUrl(image.getFilePath())).fit().into(holder.imageView);
+        Picasso.with(mContext).load(TmdbUrlBuilder.getBackdropBaseUrl(image.getFilePath())).fit().into(holder.imageView);
 
     }
 
@@ -58,4 +59,21 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         return mImage.size();
     }
 
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public ImageView imageView;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            imageView = (ImageView) itemView.findViewById(R.id.img);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mItemClickListener != null) {
+                mItemClickListener.onItemClick(v, getPosition());
+            }
+        }
+    }
 }

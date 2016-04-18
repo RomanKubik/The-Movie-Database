@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -15,9 +14,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
 
-import kubik.roman.moviesdb.TmdbUrls;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.Token;
 import kubik.roman.moviesdb.R;
 
@@ -67,7 +65,7 @@ public class SplashActivity extends Activity implements Response.Listener<String
         RequestQueue queue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrls.getTokenUrlWithApiKey(), this, this);
+                TmdbUrlBuilder.getTokenUrlWithApiKey(), this, this);
 
         queue.add(stringRequest);
     }

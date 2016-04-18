@@ -23,7 +23,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import kubik.roman.moviesdb.TmdbUrls;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.logging.AuthSessionId;
 import kubik.roman.moviesdb.models.logging.GuestSessionId;
 import kubik.roman.moviesdb.models.logging.ValidateWithLogin;
@@ -111,12 +111,12 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
 
     private void makeAuthSession() {
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrls.getValidateWithLoginUrl(mToken.getRequestToken(), mEtLogin.getText().toString(),
+                TmdbUrlBuilder.getValidateWithLoginUrl(mToken.getRequestToken(), mEtLogin.getText().toString(),
                         mEtPassword.getText().toString()), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Gson gson = new Gson();
-                ValidateWithLogin validate = new ValidateWithLogin();
+                ValidateWithLogin validate;
                 validate = gson.fromJson(response, ValidateWithLogin.class);
                 if (validate.isSuccess()) {
                     if (mChbRemember.isChecked()) {
@@ -143,11 +143,11 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
 
     private void getAuthId() {
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrls.getNewSessionUrl(mToken.getRequestToken()), new Response.Listener<String>() {
+                TmdbUrlBuilder.getNewSessionUrl(mToken.getRequestToken()), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Gson gson = new Gson();
-                AuthSessionId sessionId = new AuthSessionId();
+                AuthSessionId sessionId;
                 sessionId = gson.fromJson(response, AuthSessionId.class);
 
                 startMainActivity(sessionId.getSessionId(), SESSION_ID);
@@ -161,11 +161,11 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     private void makeGuestSession() {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrls.getGuestSessionUrl(), new Response.Listener<String>() {
+                TmdbUrlBuilder.getGuestSessionUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Gson gson = new Gson();
-                GuestSessionId guestId = new GuestSessionId();
+                GuestSessionId guestId;
                 guestId = gson.fromJson(response, GuestSessionId.class);
 
                 startMainActivity(guestId.getGuestSessionId(), GUEST_SESSION_ID);
@@ -205,14 +205,13 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     }
 
     public String trimMessage(String json, String key){
-        String trimmedString = null;
-
+        String trimmedString = "";
         try{
             JSONObject obj = new JSONObject(json);
             trimmedString = obj.getString(key);
         } catch(JSONException e){
             e.printStackTrace();
-            return null;
+            return trimmedString;
         }
 
         return trimmedString;

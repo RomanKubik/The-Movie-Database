@@ -21,8 +21,14 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.adapters.MoviesListAdapter;
+import kubik.roman.moviesdb.models.Genre;
+import kubik.roman.moviesdb.models.movies_list.EndlessOnScrollListener;
 import kubik.roman.moviesdb.models.movies_list.GenresList;
 import kubik.roman.moviesdb.models.movies_list.Movie;
 import kubik.roman.moviesdb.models.movies_list.MoviesList;
@@ -32,16 +38,29 @@ import kubik.roman.moviesdb.models.movies_list.MoviesList;
  */
 public class MainListFragment extends BaseFragment implements Response.ErrorListener {
 
-    public static final String GENRES_LIST_URL = "http://api.themoviedb.org/3/genre/movie/list?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-    public static final String MOVIES_LIST_TOP_RATE_URL = "http://api.themoviedb.org/3/movie/top_rated?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
-
-
     private MoviesList mMoviesList;
     private GenresList mGenresList;
+
+    private MoviesListAdapter mMoviesListAdapter;
 
     private View view;
 
     private RequestQueue queue;
+
+    private List<Movie> mMovies = new ArrayList<>();
+    private List<Genre> mGenres = new ArrayList<>();
+
+    private int mLastPage = 1;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        queue = Volley.newRequestQueue(getBaseActivity());
+
+        getGenresList();
+        getMoviesList(mLastPage);
+    }
 
     @Nullable
     @Override
@@ -50,62 +69,72 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
 
         view = inflater.inflate(R.layout.main_list_fragment, null);
 
-        queue = Volley.newRequestQueue(getBaseActivity());
-
-        getGenresList();
-        getMoviesList();
+        initializeList();
 
         return view;
     }
 
-    private void getGenresList() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                GENRES_LIST_URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mGenresList = gson.fromJson(response, GenresList.class);
-            }
-        }, this);
-
-        queue.add(stringRequest);
-    }
-
-    private void getMoviesList() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                MOVIES_LIST_TOP_RATE_URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mMoviesList = gson.fromJson(response, MoviesList.class);
-                showMoviesList();
-            }
-        }, this);
-        queue.add(stringRequest);
-    }
-
-    private void showMoviesList() {
-
+    private void initializeList() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_title);
-        MoviesListAdapter moviesListAdapter = new MoviesListAdapter(mMoviesList, mGenresList, getActivity());
-        recyclerView.setAdapter(moviesListAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mMoviesListAdapter = new MoviesListAdapter(mMovies, mGenres, getActivity());
+        recyclerView.setAdapter(mMoviesListAdapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
-        moviesListAdapter.SetOnItemClickListener(new MoviesListAdapter.OnItemClickListener() {
+        mMoviesListAdapter.SetOnItemClickListener(new MoviesListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Movie movie = mMoviesList.getResults().get(position);
-                Log.d("MOVIE :: ", movie.toString());
+                Movie movie = mMovies.get(position);
 
                 MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(movie.getId());
                 navigateTo(movieDetailsFragment);
             }
         });
+        recyclerView.setOnScrollListener(new EndlessOnScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int currentPage) {
+                getMoviesList(mLastPage + 1);
+            }
+        });
     }
+
+    private void getGenresList() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                TmdbUrlBuilder.getGenresListUrl(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Gson gson = new Gson();
+                mGenresList = gson.fromJson(response, GenresList.class);
+                mGenres.addAll(mGenresList.getGenres());
+            }
+        }, this);
+
+        queue.add(stringRequest);
+    }
+
+    private void getMoviesList(int currentPage) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                TmdbUrlBuilder.getMoviesListTopRatedUrl(currentPage), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Gson gson = new Gson();
+                mMoviesList = gson.fromJson(response, MoviesList.class);
+                mLastPage = mMoviesList.getPage();
+                updateListView(mMoviesList.getResults());
+            }
+        }, this);
+        queue.add(stringRequest);
+    }
+
+    private void updateListView(List<Movie> movies){
+         mMovies.addAll(movies);
+         mMoviesListAdapter.notifyDataSetChanged();
+    }
+
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        String json = null;
+        String json;
 
         NetworkResponse response = error.networkResponse;
         if(response != null && response.data != null){
