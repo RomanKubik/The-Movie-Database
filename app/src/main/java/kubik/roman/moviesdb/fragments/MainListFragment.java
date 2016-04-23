@@ -87,9 +87,12 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
             public void onItemClick(View view, int position) {
                 Movie movie = mMovies.get(position);
 
-                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.
+                MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.
                         newInstance(movie.getId());
-                navigateTo(movieDetailsFragment);
+                navigateTo(fragment);
+                /*MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.
+                        newInstance(movie.getId());
+                navigateTo(movieDetailsFragment);*/
             }
         });
         recyclerView.setOnScrollListener(new EndlessOnScrollListener(linearLayoutManager) {

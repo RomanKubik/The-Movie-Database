@@ -62,6 +62,8 @@ public class SplashActivity extends Activity implements Response.Listener<String
     }
 
     private void makeRequest() {
+
+        
         RequestQueue queue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,

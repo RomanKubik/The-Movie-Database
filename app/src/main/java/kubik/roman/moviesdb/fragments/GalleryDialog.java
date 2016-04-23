@@ -33,12 +33,11 @@ public class GalleryDialog extends DialogFragment {
 
     private int mCurrentPage;
 
-    private ViewPager mPager;
+    private ViewPager mViewPager;
     private PagerAdapter mPagerAdapter;
 
     public static GalleryDialog newInstance(List<Image> imageList, int currentPosition) {
         GalleryDialog galleryDialog = new GalleryDialog();
-        galleryDialog.setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
 
         Bundle args = new Bundle();
         args.putParcelableArrayList(IMAGE_LIST_TAG, (ArrayList<? extends Parcelable>) imageList);
@@ -66,9 +65,9 @@ public class GalleryDialog extends DialogFragment {
         Log.d(GalleryDialog.class.getSimpleName(), "onCreateView");
         View view = inflater.inflate(R.layout.image_gallery_dialog, container, false);
 
-        mPager = (ViewPager) view.findViewById(R.id.gallery_pager);
+        mViewPager = (ViewPager) view.findViewById(R.id.gallery_pager);
         mPagerAdapter = new GalleryPagerAdapter(getFragmentManager(), mCurrentPage);
-        mPager.setAdapter(mPagerAdapter);
+        mViewPager.setAdapter(mPagerAdapter);
 
         return view;
     }
@@ -89,8 +88,12 @@ public class GalleryDialog extends DialogFragment {
         public Fragment getItem(int position) {
 
             Log.d(GalleryPagerAdapter.class.getSimpleName(), "GetItem");
-
-            Image image = mImageList.get(position + page);
+            Image image;
+            if (position + page < mImageList.size()) {
+                image = mImageList.get(position + page);
+            } else {
+                image = mImageList.get((position + page) % mImageList.size());
+            }
 
             return GalleryItemFragment.newInstance(image.getFilePath());
         }
