@@ -1,6 +1,7 @@
 package kubik.roman.moviesdb.fragments;
 
 import android.os.Bundle;
+
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -65,8 +66,10 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private int mMovieId;
 
     private View view;
+
     private ImageView mImvBackdrop;
     private ImageView mImvPoster;
+
     private TextView mTvTitle;
     private TextView mTvRating;
     private TextView mTvGenres;
@@ -74,12 +77,13 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private TextView mTvDate;
     private TextView mTvRuntime;
     private TextView mTvDescription;
-    private RecyclerView mRvPictures;
     private TextView mTvTagline;
     private TextView mTvBudget;
-    private RecyclerView mRvCasts;
     private TextView mTvProdCountries;
     private TextView mTvProdCompanies;
+
+    private RecyclerView mRvPictures;
+    private RecyclerView mRvCasts;
     private RecyclerView mRvSimilar;
 
     private List<Image> mImagesList = new ArrayList<>();
@@ -130,27 +134,36 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         //Backdrop and poster
         mImvBackdrop = (ImageView) view.findViewById(R.id.iv_title);
         mImvPoster = (ImageView) view.findViewById(R.id.iv_poster);
+
         //Title, rating, genres
         mTvTitle = (TextView) view.findViewById(R.id.tv_title);
         mTvRating = (TextView) view.findViewById(R.id.tv_rating);
         mTvGenres = (TextView) view.findViewById(R.id.tv_genres);
+
         //Original title
         mTvOrigTitle = (TextView) view.findViewById(R.id.tv_orig_title);
-        //Fate, runtime
+
+        //Date, runtime
         mTvDate = (TextView) view.findViewById(R.id.tv_date);
         mTvRuntime = (TextView) view.findViewById(R.id.tv_runtime);
+
         //Description
         mTvDescription = (TextView) view.findViewById(R.id.tv_description);
+
         //Images
         mRvPictures = (RecyclerView) view.findViewById(R.id.rv_pictures);
+
         //Tagline and budget
         mTvTagline = (TextView) view.findViewById(R.id.tv_tagline);
         mTvBudget = (TextView) view.findViewById(R.id.tv_budget);
+
         //Casts
         mRvCasts = (RecyclerView) view.findViewById(R.id.rv_casts);
+
         //Companies and countries
         mTvProdCountries = (TextView) view.findViewById(R.id.tv_countries);
         mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
+
         //Similar movies
         mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
 
@@ -228,10 +241,12 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     }
 
     private void setupBaseInfo() {
+
         Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
                 fit().centerCrop().into(this.mImvBackdrop);
         Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getPosterBaseUrl(mMovieDetails.getPosterPath()))
                 .fit().centerCrop().into(this.mImvPoster);
+
         mTvTitle.setText(mMovieDetails.getTitle());
         mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
 
@@ -283,6 +298,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     }
 
     private void setupImages() {
+        Log.d(TAG, "SetupImages");
         mImagesList.clear();
         mImagesList.addAll(mMovieImages.getBackdrops());
         ImageListAdapter imageAdapter = new ImageListAdapter(mImagesList, getActivity());
@@ -293,7 +309,9 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         imageAdapter.SetOnItemClickListener(new ImageListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-
+                Log.d(TAG, "Image onClick");
+                GalleryDialog galleryDialog = GalleryDialog.newInstance(mImagesList, position);
+                navigateTo(galleryDialog);
             }
         });
     }
@@ -329,8 +347,6 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             }
         });
     }
-
-
 
     @Override
     public void onErrorResponse(VolleyError error) {

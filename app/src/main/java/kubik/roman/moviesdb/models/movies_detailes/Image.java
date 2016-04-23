@@ -1,11 +1,14 @@
 package kubik.roman.moviesdb.models.movies_detailes;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Image specifications
  */
-public class Image {
+public class Image implements Parcelable{
     @SerializedName("file_path")
     private String filePath;
     private int width;
@@ -18,6 +21,27 @@ public class Image {
     private double voteAverage;
     @SerializedName("vote_count")
     private int voteCount;
+
+    protected Image(Parcel in) {
+        filePath = in.readString();
+        width = in.readInt();
+        height = in.readInt();
+        aspectRatio = in.readDouble();
+        voteAverage = in.readDouble();
+        voteCount = in.readInt();
+    }
+
+    public static final Creator<Image> CREATOR = new Creator<Image>() {
+        @Override
+        public Image createFromParcel(Parcel in) {
+            return new Image(in);
+        }
+
+        @Override
+        public Image[] newArray(int size) {
+            return new Image[size];
+        }
+    };
 
     public String getFilePath() {
         return filePath;
@@ -73,5 +97,21 @@ public class Image {
 
     public void setVoteCount(int voteCount) {
         this.voteCount = voteCount;
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(filePath);
+        dest.writeInt(width);
+        dest.writeInt(height);
+        dest.writeDouble(aspectRatio);
+        dest.writeDouble(voteAverage);
+        dest.writeInt(voteCount);
     }
 }

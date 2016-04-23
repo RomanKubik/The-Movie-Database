@@ -75,7 +75,8 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
     }
 
     private void initializeList() {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_title);
         mMoviesListAdapter = new MoviesListAdapter(mMovies, mGenres, getActivity());
         recyclerView.setAdapter(mMoviesListAdapter);
@@ -86,7 +87,8 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
             public void onItemClick(View view, int position) {
                 Movie movie = mMovies.get(position);
 
-                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(movie.getId());
+                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.
+                        newInstance(movie.getId());
                 navigateTo(movieDetailsFragment);
             }
         });

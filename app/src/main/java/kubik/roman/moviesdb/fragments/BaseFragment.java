@@ -1,13 +1,11 @@
 package kubik.roman.moviesdb.fragments;
 
-import android.app.ActionBar;
+
 import android.app.Activity;
-import android.app.Fragment;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
-import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.activities.MainActivity;
 
 /**
@@ -18,9 +16,9 @@ public class BaseFragment extends Fragment {
     protected MainActivity mainActivity;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.mainActivity = (MainActivity) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.mainActivity = (MainActivity) context;
     }
 
     protected MainActivity getBaseActivity() {

@@ -7,6 +7,7 @@ public class TmdbUrlBuilder {
 
     private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w300";
     private static final String BACKDROP_BASE_URL = "http://image.tmdb.org/t/p/w500";
+    private static final String GALLERY_BASE_URL = "http://image.tmdb.org/t/p/w1000";
 
     //For creating token
     private static final String TOKEN_URL_WITH_API_KEY = "http://api.themoviedb.org/3/authentication/token/new?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
@@ -84,6 +85,9 @@ public class TmdbUrlBuilder {
         return BACKDROP_BASE_URL + path;
     }
 
+    public static String getGalleryBaseUrl(String path) {
+        return GALLERY_BASE_URL + path;
+    }
     public static String getTokenUrlWithApiKey() {
         return TOKEN_URL_WITH_API_KEY;
     }

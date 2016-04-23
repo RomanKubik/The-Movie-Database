@@ -1,9 +1,10 @@
 package kubik.roman.moviesdb.activities;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import kubik.roman.moviesdb.fragments.MainListFragment;
 import kubik.roman.moviesdb.R;
@@ -32,12 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadFragment(Fragment fragment) {
         try {
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
             transaction.addToBackStack(fragment.getClass().getSimpleName());
             transaction.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(MainActivity.class.getSimpleName(), e.getLocalizedMessage());
         }
         supportInvalidateOptionsMenu();
     }
@@ -46,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Fragment currentFragment = getFragmentManager().findFragmentById(R.id.content_frame);
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
         if (currentFragment instanceof MainListFragment) {
             MainActivity.this.finish();
         } else {
-            getFragmentManager().popBackStackImmediate();
+            getSupportFragmentManager().popBackStack();
 
         }
 
