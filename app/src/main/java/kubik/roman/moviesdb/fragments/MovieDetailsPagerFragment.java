@@ -82,4 +82,5 @@ public class MovieDetailsPagerFragment extends BaseFragment {
             return 2;
         }
     }
+
 }

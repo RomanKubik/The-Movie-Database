@@ -8,6 +8,7 @@ import android.util.Log;
 
 import kubik.roman.moviesdb.fragments.MainListFragment;
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.fragments.MovieListPagerFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         getIntents();
-
-        loadFragment(new MainListFragment());
+        Fragment fragment = MovieListPagerFragment.newInstance();
+        loadFragment(fragment, true);
     }
 
 
@@ -31,17 +32,20 @@ public class MainActivity extends AppCompatActivity {
         mSessionType = getIntent().getStringExtra(LoginActivity.SESSION_TYPE);
     }
 
-    public void loadFragment(Fragment fragment) {
+    public void loadFragment(Fragment fragment, boolean isAddToBackStack) {
         try {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
-            transaction.addToBackStack(fragment.getClass().getSimpleName());
+            if (isAddToBackStack) {
+                transaction.addToBackStack(fragment.getClass().getSimpleName());
+            }
             transaction.commit();
         } catch (Exception e) {
             Log.d(MainActivity.class.getSimpleName(), e.getLocalizedMessage());
         }
         supportInvalidateOptionsMenu();
     }
+
 
 
     @Override
@@ -53,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.this.finish();
         } else {
             getSupportFragmentManager().popBackStack();
-
         }
 
     }

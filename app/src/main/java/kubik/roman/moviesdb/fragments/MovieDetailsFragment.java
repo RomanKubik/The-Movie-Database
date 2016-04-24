@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.adapters.CastsListAdapter;
@@ -104,12 +105,6 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         return movieDetailsFragment;
     }
 
-    private void GET(String url, Response.Listener<String> listener,
-                     Response.ErrorListener errorListener) {
-        StringRequest request = new StringRequest(Request.Method.GET, url, listener, errorListener);
-        queue.add(request);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,27 +168,26 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private void getAllMovieDetails() {
         gson = new Gson();
         //Get Base details
-        GET(TmdbUrlBuilder.getDetailsUrl(mMovieId), new Response.Listener<String>() {
+        GsonGetRequest<MovieDetails> requestDetails = new GsonGetRequest<>(TmdbUrlBuilder.getDetailsUrl(mMovieId),
+                MovieDetails.class, null, new Response.Listener<MovieDetails>() {
             @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    mMovieDetails = gson.fromJson(response, MovieDetails.class);
-                    Log.d(TAG, "Details");
-                    setupBaseInfo();
-                }
+            public void onResponse(MovieDetails response) {
+                mMovieDetails = response;
+                setupBaseInfo();
             }
         }, this);
+        queue.add(requestDetails);
         //Get Images
-        GET(TmdbUrlBuilder.getImagesUrl(mMovieId), new Response.Listener<String>() {
+        GsonGetRequest<MovieImages> requestImages = new GsonGetRequest<>(TmdbUrlBuilder.getImagesUrl(mMovieId),
+                MovieImages.class, null, new Response.Listener<MovieImages>() {
             @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    mMovieImages = gson.fromJson(response, MovieImages.class);
-                    Log.d(TAG, "Images");
-                    setupImages();
-                }
+            public void onResponse(MovieImages response) {
+               mMovieImages = response;
+                setupImages();
             }
         }, this);
+        queue.add(requestImages);
+        /*
         //Get Videos
         GET(TmdbUrlBuilder.getVideosUrl(mMovieId), new Response.Listener<String>() {
             @Override
@@ -203,41 +197,37 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
                     Log.d(TAG, "Videos");
                 }
             }
-        }, this);
+        }, this);*/
         //Get Reviews
-        GET(TmdbUrlBuilder.getReviewsUrl(mMovieId), new Response.Listener<String>() {
+        GsonGetRequest<MovieReviews> requestReviews = new GsonGetRequest<>(TmdbUrlBuilder.getReviewsUrl(mMovieId),
+                MovieReviews.class, null, new Response.Listener<MovieReviews>() {
             @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    Gson gson = new Gson();
-                    mMoviesReviews = gson.fromJson(response, MovieReviews.class);
-                    Log.d(TAG, "Reviews");
-                }
-            }
-        }, this);
-        //Get Casts
-        GET(TmdbUrlBuilder.getMovieCredits(mMovieId), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    mMovieCredits = gson.fromJson(response, Credits.class);
-                    Log.d(TAG, "Similar");
-                    setupCasts();
-                }
-            }
-        }, this);
-        //Get Similar movies
-        GET(TmdbUrlBuilder.getSimilarListUrl(mMovieId), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    mSimilarMovies = gson.fromJson(response, MoviesList.class);
-                    Log.d(TAG, "Similar");
-                    setupSimilarMovies();
-                }
-            }
-        }, this);
+            public void onResponse(MovieReviews response) {
+                mMoviesReviews = response;
 
+            }
+        }, this);
+        queue.add(requestReviews);
+        //Get Casts
+        GsonGetRequest<Credits> requestCredits = new GsonGetRequest<>(TmdbUrlBuilder.getMovieCredits(mMovieId),
+                Credits.class, null, new Response.Listener<Credits>() {
+            @Override
+            public void onResponse(Credits response) {
+                mMovieCredits = response;
+                setupCasts();
+            }
+        }, this);
+        queue.add(requestCredits);
+        //Get Similar movies
+        GsonGetRequest<MoviesList> requestSimilar = new GsonGetRequest<>(TmdbUrlBuilder.getSimilarListUrl(mMovieId),
+                MoviesList.class, null, new Response.Listener<MoviesList>() {
+            @Override
+            public void onResponse(MoviesList response) {
+                mSimilarMovies = response;
+                setupSimilarMovies();
+            }
+        }, this);
+        queue.add(requestSimilar);
     }
 
     private void setupBaseInfo() {
@@ -248,7 +238,11 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
                 .fit().centerCrop().into(this.mImvPoster);
 
         mTvTitle.setText(mMovieDetails.getTitle());
-        mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
+        if (mMovieDetails.getVoteAverage() != 0) {
+            mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
+        } else {
+            mTvRating.setText(getBaseActivity().getString(R.string.no_rating));
+        }
 
         String genres = getString(R.string.genres) + ": ";
         for (Genre genre : mMovieDetails.getGenres()) {
@@ -311,7 +305,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onItemClick(View view, int position) {
                 Log.d(TAG, "Image onClick");
                 GalleryDialog galleryDialog = GalleryDialog.newInstance(mImagesList, position);
-                navigateTo(galleryDialog);
+                navigateTo(galleryDialog, false);
             }
         });
     }
@@ -343,7 +337,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onItemClick(View view, int position) {
                 int id = mSimilarMovies.getResults().get(position).getId();
                 MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
-                navigateTo(movieDetailsFragment);
+                navigateTo(movieDetailsFragment, false);
             }
         });
     }

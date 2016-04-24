@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.adapters.MoviesListAdapter;
@@ -38,8 +39,11 @@ import kubik.roman.moviesdb.models.movies_list.MoviesList;
  */
 public class MainListFragment extends BaseFragment implements Response.ErrorListener {
 
+    private static final String TYPE_TAG = "type";
+    //Type of movies list 0- popular, 1- top rated, 2- upcoming, 3- now playing
+    private int mType = 0;
+
     private MoviesList mMoviesList;
-    private GenresList mGenresList;
 
     private MoviesListAdapter mMoviesListAdapter;
 
@@ -51,15 +55,25 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
     private List<Genre> mGenres = new ArrayList<>();
 
     private int mLastPage = 1;
+    private boolean isInitialized = false;
+
+    public static MainListFragment newInstance(int type) {
+        MainListFragment fragment = new MainListFragment();
+
+        Bundle args = new Bundle();
+        args.putInt(TYPE_TAG, type);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         queue = Volley.newRequestQueue(getBaseActivity());
+        mType = getArguments().getInt(TYPE_TAG);
 
-        getGenresList();
-        getMoviesList(mLastPage);
     }
 
     @Nullable
@@ -68,9 +82,8 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.main_list_fragment, null);
-
-        initializeList();
-
+        getGenresList();
+        getMoviesList(mLastPage);
         return view;
     }
 
@@ -89,10 +102,7 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
 
                 MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.
                         newInstance(movie.getId());
-                navigateTo(fragment);
-                /*MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.
-                        newInstance(movie.getId());
-                navigateTo(movieDetailsFragment);*/
+                navigateTo(fragment, true);
             }
         });
         recyclerView.setOnScrollListener(new EndlessOnScrollListener(linearLayoutManager) {
@@ -104,36 +114,58 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
     }
 
     private void getGenresList() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrlBuilder.getGenresListUrl(), new Response.Listener<String>() {
+        GsonGetRequest<GenresList> request = new GsonGetRequest<>(TmdbUrlBuilder.getGenresListUrl(),
+                GenresList.class, null, new Response.Listener<GenresList>() {
             @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mGenresList = gson.fromJson(response, GenresList.class);
-                mGenres.addAll(mGenresList.getGenres());
+            public void onResponse(GenresList response) {
+                mGenres = response.getGenres();
+                /*if (mMoviesListAdapter != null)
+                    mMoviesListAdapter.notifyDataSetChanged();*/
             }
         }, this);
 
-        queue.add(stringRequest);
+        queue.add(request);
     }
 
     private void getMoviesList(int currentPage) {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrlBuilder.getMoviesListTopRatedUrl(currentPage), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                mMoviesList = gson.fromJson(response, MoviesList.class);
-                mLastPage = mMoviesList.getPage();
-                updateListView(mMoviesList.getResults());
-            }
-        }, this);
-        queue.add(stringRequest);
+        String url;
+        Log.d(TYPE_TAG, String.valueOf(mType));
+        switch (mType) {
+            case 0:
+                url = TmdbUrlBuilder.getMoviesListPopularUrl(currentPage);
+                break;
+            case 1:
+                url = TmdbUrlBuilder.getMoviesListTopRatedUrl(currentPage);
+                break;
+            case 2:
+                url = TmdbUrlBuilder.getMoviesListUpcomingUrl(currentPage);
+                break;
+            case 3:
+                url = TmdbUrlBuilder.getMoviesListNowPlayingUrl(currentPage);
+                break;
+            default:
+                url = TmdbUrlBuilder.getMoviesListPopularUrl(currentPage);
+                break;
+        }
+        GsonGetRequest<MoviesList> request = new GsonGetRequest<>(url, MoviesList.class, null,
+                new Response.Listener<MoviesList>() {
+                    @Override
+                    public void onResponse(MoviesList response) {
+                        mMoviesList = response;
+                        mLastPage = mMoviesList.getPage();
+                        updateListView(mMoviesList.getResults());
+                    }
+                }, this);
+        queue.add(request);
     }
 
     private void updateListView(List<Movie> movies){
-         mMovies.addAll(movies);
-         mMoviesListAdapter.notifyDataSetChanged();
+        mMovies.addAll(movies);
+        if (!isInitialized) {
+            initializeList();
+            isInitialized = true;
+        }
+        mMoviesListAdapter.notifyDataSetChanged();
     }
 
 

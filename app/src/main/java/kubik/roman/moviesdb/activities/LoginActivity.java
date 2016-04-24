@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.logging.AuthSessionId;
 import kubik.roman.moviesdb.models.logging.GuestSessionId;
@@ -110,15 +111,13 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     }
 
     private void makeAuthSession() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrlBuilder.getValidateWithLoginUrl(mToken.getRequestToken(), mEtLogin.getText().toString(),
-                        mEtPassword.getText().toString()), new Response.Listener<String>() {
+        String url = TmdbUrlBuilder.getValidateWithLoginUrl(mToken.getRequestToken(),
+                mEtLogin.getText().toString(), mEtPassword.getText().toString());
+        GsonGetRequest<ValidateWithLogin> request = new GsonGetRequest<>(url, ValidateWithLogin.class,
+                null, new Response.Listener<ValidateWithLogin>() {
             @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                ValidateWithLogin validate;
-                validate = gson.fromJson(response, ValidateWithLogin.class);
-                if (validate.isSuccess()) {
+            public void onResponse(ValidateWithLogin response) {
+                if (response.isSuccess()) {
                     if (mChbRemember.isChecked()) {
                         saveAuthentication();
                     }
@@ -130,7 +129,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
             }
         }, this);
 
-        queue.add(stringRequest);
+        queue.add(request);
     }
 
     private void saveAuthentication() {
@@ -142,37 +141,30 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     }
 
     private void getAuthId() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrlBuilder.getNewSessionUrl(mToken.getRequestToken()), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                AuthSessionId sessionId;
-                sessionId = gson.fromJson(response, AuthSessionId.class);
-
-                startMainActivity(sessionId.getSessionId(), SESSION_ID);
-            }
-        }, this);
-
-        queue.add(stringRequest);
+        String url = TmdbUrlBuilder.getNewSessionUrl(mToken.getRequestToken());
+        GsonGetRequest<AuthSessionId> request = new GsonGetRequest<>(url, AuthSessionId.class, null,
+                new Response.Listener<AuthSessionId>() {
+                    @Override
+                    public void onResponse(AuthSessionId response) {
+                        String id = response.getSessionId();
+                        startMainActivity(id, SESSION_ID);
+                    }
+                }, this);
+        queue.add(request);
     }
 
 
     private void makeGuestSession() {
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                TmdbUrlBuilder.getGuestSessionUrl(), new Response.Listener<String>() {
+        GsonGetRequest<GuestSessionId> request = new GsonGetRequest<>(TmdbUrlBuilder.getGuestSessionUrl(),
+                GuestSessionId.class, null, new Response.Listener<GuestSessionId>() {
             @Override
-            public void onResponse(String response) {
-                Gson gson = new Gson();
-                GuestSessionId guestId;
-                guestId = gson.fromJson(response, GuestSessionId.class);
-
-                startMainActivity(guestId.getGuestSessionId(), GUEST_SESSION_ID);
+            public void onResponse(GuestSessionId response) {
+                String id = response.getGuestSessionId();
+                startMainActivity(id, GUEST_SESSION_ID);
             }
         }, this);
 
-        queue.add(stringRequest);
+        queue.add(request);
     }
 
     private void startMainActivity(String sessionId, String sessionType) {

@@ -24,8 +24,12 @@ public class BaseFragment extends Fragment {
         return mainActivity;
     }
 
+    protected void navigateTo(Fragment frg, boolean isAddToBackStack) {
+        getBaseActivity().loadFragment(frg, isAddToBackStack);
+    }
+
     protected void navigateTo(Fragment frg) {
-        getBaseActivity().loadFragment(frg);
+        getBaseActivity().loadFragment(frg, true);
     }
 
     protected void showToast(String msg) {

@@ -27,5 +27,6 @@
     <string name="dollars">\t $$$</string>
 
     <string name="no_tagline">No tagline</string>
+    <string name="no_rating">No rating</string>
 
 </resources>

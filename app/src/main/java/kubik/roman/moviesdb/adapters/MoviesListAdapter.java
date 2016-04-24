@@ -64,7 +64,11 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
         Movie movie = mMoviesList.get(position);
         holder.tvTitle.setText(movie.getTitle());
-        holder.tvRating.setText(String.valueOf(movie.getVoteAverage()));
+        if (movie.getVoteAverage() != 0) {
+            holder.tvRating.setText(String.valueOf(movie.getVoteAverage()));
+        } else {
+            holder.tvRating.setText(mContext.getString(R.string.no_rating));
+        }
         holder.genresString = mContext.getString(R.string.genres) + ": ";
 
         for (int i = 0; i < movie.getGenreIds().size(); i++) {

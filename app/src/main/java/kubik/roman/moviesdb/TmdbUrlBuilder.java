@@ -110,19 +110,20 @@ public class TmdbUrlBuilder {
         return GENRES_LIST_URL;
     }
 
+
     public static String getMoviesListTopRatedUrl(int page) {
         return MOVIE_BASE_URL + MOVIES_LIST_TOP_RATED_URL + API_KEY + "&" + MOVIES_LIST_PAGE + String.valueOf(page);
     }
 
-    public static String getMoviesListPopularUrl() {
-        return MOVIE_BASE_URL + MOVIES_LIST_POPULAR_URL + API_KEY;
+    public static String getMoviesListPopularUrl(int page) {
+        return MOVIE_BASE_URL + MOVIES_LIST_POPULAR_URL + API_KEY + "&" + MOVIES_LIST_PAGE + String.valueOf(page);
     }
 
-    public static String getMoviesListNowPlayingUrl() {
-        return MOVIE_BASE_URL + MOVIES_LIST_NOW_PLAYING_URL + API_KEY;
+    public static String getMoviesListNowPlayingUrl(int page) {
+        return MOVIE_BASE_URL + MOVIES_LIST_NOW_PLAYING_URL + API_KEY + "&" + MOVIES_LIST_PAGE + String.valueOf(page);
     }
 
-    public static String getMoviesListUpcomingUrl() {
-        return MOVIE_BASE_URL + MOVIES_LIST_UPCOMING_URL + API_KEY;
+    public static String getMoviesListUpcomingUrl(int page) {
+        return MOVIE_BASE_URL + MOVIES_LIST_UPCOMING_URL + API_KEY + "&" + MOVIES_LIST_PAGE + String.valueOf(page);
     }
 }
