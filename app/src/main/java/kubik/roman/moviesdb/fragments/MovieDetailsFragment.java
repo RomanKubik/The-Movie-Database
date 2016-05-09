@@ -232,6 +232,8 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
 
     private void setupBaseInfo() {
 
+        getBaseActivity().mToolbar.setTitle(mMovieDetails.getTitle());
+
         Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
                 fit().centerCrop().into(this.mImvBackdrop);
         Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getPosterBaseUrl(mMovieDetails.getPosterPath()))

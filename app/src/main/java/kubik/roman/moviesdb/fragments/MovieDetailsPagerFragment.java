@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.SlidingTabLayout;
 
 /**
  * Fragment for displaying ViewPager
@@ -23,6 +24,8 @@ public class MovieDetailsPagerFragment extends BaseFragment {
 
     private ViewPager mViewPager;
     private PagerAdapter mPagerAdapter;
+
+    private SlidingTabLayout mTabLayout;
 
     private int mMovieId;
 
@@ -51,18 +54,33 @@ public class MovieDetailsPagerFragment extends BaseFragment {
 
         View view = inflater.inflate(R.layout.movie_detailes_pager, container, false);
 
+        CharSequence[] titles = {getString(R.string.details), getString(R.string.videos)};
+
+        PagerAdapter mPagerAdapter = new DetailsPagerAdapter(getFragmentManager(), titles, 2 );
+
         mViewPager = (ViewPager) view.findViewById(R.id.details_pager);
-        mPagerAdapter = new DetailsPagerAdapter(getFragmentManager());
         mViewPager.setAdapter(mPagerAdapter);
+
+        mTabLayout = (SlidingTabLayout) view.findViewById(R.id.tab_layout);
+        mTabLayout.setDistributeEvenly(true);
+
+        mTabLayout.setViewPager(mViewPager);
 
         return view;
     }
 
+
     public class DetailsPagerAdapter extends FragmentStatePagerAdapter {
 
 
-        public DetailsPagerAdapter(FragmentManager fm) {
-            super(fm);
+        CharSequence[] mTitles;
+        int mNumOfTabs;
+
+        public DetailsPagerAdapter(FragmentManager fragmentManager, CharSequence[] titles, int numOfTabs) {
+            super(fragmentManager);
+
+            this.mTitles = titles;
+            this.mNumOfTabs = numOfTabs;
         }
 
         @Override
@@ -78,8 +96,13 @@ public class MovieDetailsPagerFragment extends BaseFragment {
         }
 
         @Override
+        public CharSequence getPageTitle(int position) {
+            return mTitles[position];
+        }
+
+        @Override
         public int getCount() {
-            return 2;
+            return mNumOfTabs;
         }
     }
 
