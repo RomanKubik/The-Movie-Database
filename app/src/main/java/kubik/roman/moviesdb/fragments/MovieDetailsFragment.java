@@ -336,8 +336,8 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             @Override
             public void onItemClick(View view, int position) {
                 int id = mSimilarMovies.getResults().get(position).getId();
-                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
-                navigateTo(movieDetailsFragment, false);
+                MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.newInstance(id);
+                navigateTo(fragment, false);
             }
         });
     }

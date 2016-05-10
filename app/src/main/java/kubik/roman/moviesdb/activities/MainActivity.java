@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import kubik.roman.moviesdb.fragments.MainListFragment;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.fragments.MovieListPagerFragment;
 
@@ -50,15 +49,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
-        if (currentFragment instanceof MainListFragment) {
+        if (currentFragment instanceof MovieListPagerFragment) {
             MainActivity.this.finish();
         } else {
-            getSupportFragmentManager().popBackStack();
+            getSupportFragmentManager().popBackStackImmediate();
         }
-
     }
 
 
