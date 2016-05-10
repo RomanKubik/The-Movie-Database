@@ -36,6 +36,8 @@ public class MainListPagerFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getBaseActivity().mToolbar.setTitle(R.string.app_name);
+
         View view = inflater.inflate(R.layout.movie_list_pager, container, false);
 
         CharSequence[] titles = {getString(R.string.popular), getString(R.string.top_rated), getString(R.string.upcoming), getString(R.string.now_playing)};
@@ -47,6 +49,13 @@ public class MainListPagerFragment extends BaseFragment {
 
         mTabLayout = (SlidingTabLayout) view.findViewById(R.id.tab_layout);
         mTabLayout.setDistributeEvenly(true);
+
+        mTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.colorAccent);
+            }
+        });
 
         mTabLayout.setViewPager(mViewPager);
 

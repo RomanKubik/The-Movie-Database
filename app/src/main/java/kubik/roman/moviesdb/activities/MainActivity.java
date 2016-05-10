@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
-        if (currentFragment instanceof MovieListPagerFragment) {
+        if (currentFragment instanceof MainListPagerFragment) {
             MainActivity.this.finish();
         } else {
             getSupportFragmentManager().popBackStackImmediate();

@@ -74,7 +74,6 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
         queue = Volley.newRequestQueue(getBaseActivity());
         mType = getArguments().getInt(TYPE_TAG);
 
-        getBaseActivity().mToolbar.setTitle(R.string.app_name);
     }
 
     @Nullable

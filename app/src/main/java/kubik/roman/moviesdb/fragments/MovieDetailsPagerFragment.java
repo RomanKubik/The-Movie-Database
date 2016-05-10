@@ -64,10 +64,18 @@ public class MovieDetailsPagerFragment extends BaseFragment {
         mTabLayout = (SlidingTabLayout) view.findViewById(R.id.tab_layout);
         mTabLayout.setDistributeEvenly(true);
 
+        mTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.colorAccent);
+            }
+        });
+
         mTabLayout.setViewPager(mViewPager);
 
         return view;
     }
+
 
 
     public class DetailsPagerAdapter extends FragmentStatePagerAdapter {
