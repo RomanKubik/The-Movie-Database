@@ -12,15 +12,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.SlidingTabLayout;
 
 /**
  * Fragment for displaying ViewPager of different types of lists
  */
-public class MovieListPagerFragment extends BaseFragment {
+public class MainListPagerFragment extends BaseFragment {
 
-    public static MovieListPagerFragment newInstance() {
+    private ViewPager mViewPager;
+    private SlidingTabLayout mTabLayout;
 
-        return new MovieListPagerFragment();
+    public static MainListPagerFragment newInstance() {
+
+        return new MainListPagerFragment();
     }
 
     @Override
@@ -34,17 +38,31 @@ public class MovieListPagerFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.movie_list_pager, container, false);
 
-        ViewPager mViewPager = (ViewPager) view.findViewById(R.id.list_pager);
-        PagerAdapter mPagerAdapter = new MovieListPagerAdapter(getFragmentManager());
+        CharSequence[] titles = {getString(R.string.popular), getString(R.string.top_rated), getString(R.string.upcoming), getString(R.string.now_playing)};
+
+        PagerAdapter mPagerAdapter = new MovieListPagerAdapter(getFragmentManager(), titles, 4 );
+
+        mViewPager = (ViewPager) view.findViewById(R.id.list_pager);
         mViewPager.setAdapter(mPagerAdapter);
+
+        mTabLayout = (SlidingTabLayout) view.findViewById(R.id.tab_layout);
+        mTabLayout.setDistributeEvenly(true);
+
+        mTabLayout.setViewPager(mViewPager);
+
         return view;
     }
 
     private class MovieListPagerAdapter extends FragmentStatePagerAdapter {
 
-        public MovieListPagerAdapter(FragmentManager fragmentManager) {
+        CharSequence[] mTitles;
+        int mNumOfTabs;
+
+        public MovieListPagerAdapter(FragmentManager fragmentManager, CharSequence[] titles, int numOfTabs) {
             super(fragmentManager);
 
+            this.mTitles = titles;
+            this.mNumOfTabs = numOfTabs;
         }
 
         @Override
@@ -54,7 +72,12 @@ public class MovieListPagerFragment extends BaseFragment {
 
         @Override
         public int getCount() {
-            return 4;
+            return mNumOfTabs;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mTitles[position];
         }
     }
 }

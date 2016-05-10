@@ -1,15 +1,19 @@
 package kubik.roman.moviesdb.activities;
 
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.fragments.MovieListPagerFragment;
+import kubik.roman.moviesdb.fragments.MainListPagerFragment;
 
 public class MainActivity extends AppCompatActivity {
+
+    public Toolbar mToolbar;
 
     private String mSessionId;
     private String mSessionType;
@@ -20,9 +24,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initToolbar();
+
         getIntents();
-        Fragment fragment = MovieListPagerFragment.newInstance();
+        Fragment fragment = MainListPagerFragment.newInstance();
         loadFragment(fragment, true);
+    }
+
+    private void initToolbar() {
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
     }
 
 

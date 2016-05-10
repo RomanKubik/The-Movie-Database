@@ -9,6 +9,14 @@
     
     <string name="invalid_authentication">Invalid Login or Password</string>
 
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="now_playing">Now playing</string>
+
+    <string name="details">Details</string>
+    <string name="videos">Videos</string>
+
     <string name="genres">Genres</string>
     <string name="minutes">min</string>
 
