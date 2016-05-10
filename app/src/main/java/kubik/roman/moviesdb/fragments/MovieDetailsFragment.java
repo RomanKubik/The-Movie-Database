@@ -3,6 +3,7 @@ package kubik.roman.moviesdb.fragments;
 import android.os.Bundle;
 
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -31,6 +32,7 @@ import java.util.List;
 import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.R;
+import kubik.roman.moviesdb.activities.MovieDetailsActivity;
 import kubik.roman.moviesdb.adapters.CastsListAdapter;
 import kubik.roman.moviesdb.adapters.ImageListAdapter;
 import kubik.roman.moviesdb.adapters.SimilarListAdapter;
@@ -51,7 +53,7 @@ import kubik.roman.moviesdb.util.Validator;
 /**
  * Fragment for displaying full information about selected movie
  */
-public class MovieDetailsFragment extends BaseFragment implements Response.ErrorListener {
+public class MovieDetailsFragment extends Fragment implements Response.ErrorListener {
 
     public static final String TAG = MovieDetailsFragment.class.getName();
 
@@ -94,6 +96,8 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     private RequestQueue queue;
     private Gson gson;
 
+    private MovieDetailsActivity mActivity;
+
     public static MovieDetailsFragment newInstance(int id) {
 
         MovieDetailsFragment movieDetailsFragment = new MovieDetailsFragment();
@@ -117,6 +121,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mActivity = (MovieDetailsActivity) getActivity();
         view = inflater.inflate(R.layout.movie_details_fragment, container, false);
         Log.d(TAG, "onCreateView1");
         initializeViews();
@@ -182,7 +187,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
                 MovieImages.class, null, new Response.Listener<MovieImages>() {
             @Override
             public void onResponse(MovieImages response) {
-               mMovieImages = response;
+                mMovieImages = response;
                 setupImages();
             }
         }, this);
@@ -230,20 +235,21 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         queue.add(requestSimilar);
     }
 
+
     private void setupBaseInfo() {
 
-        getBaseActivity().mToolbar.setTitle(mMovieDetails.getTitle());
+        //mActivity.mToolbar.setTitle(mMovieDetails.getTitle());
 
-        Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
+        Picasso.with(mActivity).load(TmdbUrlBuilder.getBackdropBaseUrl(mMovieDetails.getBackdropPath())).
                 fit().centerCrop().into(this.mImvBackdrop);
-        Picasso.with(getBaseActivity()).load(TmdbUrlBuilder.getPosterBaseUrl(mMovieDetails.getPosterPath()))
+        Picasso.with(mActivity).load(TmdbUrlBuilder.getPosterBaseUrl(mMovieDetails.getPosterPath()))
                 .fit().centerCrop().into(this.mImvPoster);
 
         mTvTitle.setText(mMovieDetails.getTitle());
         if (mMovieDetails.getVoteAverage() != 0) {
             mTvRating.setText(String.valueOf(mMovieDetails.getVoteAverage()));
         } else {
-            mTvRating.setText(getBaseActivity().getString(R.string.no_rating));
+            mTvRating.setText(mActivity.getString(R.string.no_rating));
         }
 
         String genres = getString(R.string.genres) + ": ";
@@ -271,7 +277,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvBudget.setText(budget);
 
         String str = "";
-        for (ProductionCountry tmp: mMovieDetails.getProductionCountries()) {
+        for (ProductionCountry tmp : mMovieDetails.getProductionCountries()) {
             str += tmp.getName() + ", ";
         }
         if (Validator.isStringValid(str)) {
@@ -282,7 +288,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         mTvProdCountries.setText(str);
 
         str = "";
-        for (ProductionCompany tmp: mMovieDetails.getProductionCompanies()) {
+        for (ProductionCompany tmp : mMovieDetails.getProductionCompanies()) {
             str += tmp.getName() + ", ";
         }
         if (Validator.isStringValid(str)) {
@@ -307,7 +313,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
             public void onItemClick(View view, int position) {
                 Log.d(TAG, "Image onClick");
                 GalleryDialog galleryDialog = GalleryDialog.newInstance(mImagesList, position);
-                navigateTo(galleryDialog, false);
+                galleryDialog.show(mActivity.getSupportFragmentManager(), GalleryDialog.class.getSimpleName());
             }
         });
     }
@@ -337,9 +343,11 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
         similarListAdapter.SetOnItemClickListener(new SimilarListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+
                 int id = mSimilarMovies.getResults().get(position).getId();
-                MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.newInstance(id);
-                navigateTo(fragment, false);
+                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
+                mActivity.forceLoadFragment(movieDetailsFragment);
+
             }
         });
     }
@@ -356,7 +364,7 @@ public class MovieDetailsFragment extends BaseFragment implements Response.Error
                 default:
                     json = new String(response.data);
                     json = trimMessage(json, "status_message");
-                    if (json != null) showToast(json);
+                    //if (json != null) showToast(json);
                     break;
             }
         }

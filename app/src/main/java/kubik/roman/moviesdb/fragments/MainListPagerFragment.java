@@ -21,7 +21,7 @@ public class MainListPagerFragment extends BaseFragment {
 
     private ViewPager mViewPager;
     private SlidingTabLayout mTabLayout;
-
+    private PagerAdapter mPagerAdapter;
     public static MainListPagerFragment newInstance() {
 
         return new MainListPagerFragment();
@@ -36,13 +36,11 @@ public class MainListPagerFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getBaseActivity().mToolbar.setTitle(R.string.app_name);
-
         View view = inflater.inflate(R.layout.movie_list_pager, container, false);
 
         CharSequence[] titles = {getString(R.string.popular), getString(R.string.top_rated), getString(R.string.upcoming), getString(R.string.now_playing)};
 
-        PagerAdapter mPagerAdapter = new MovieListPagerAdapter(getFragmentManager(), titles, 4 );
+        mPagerAdapter = new MovieListPagerAdapter(getFragmentManager(), titles, 4);
 
         mViewPager = (ViewPager) view.findViewById(R.id.list_pager);
         mViewPager.setAdapter(mPagerAdapter);
@@ -62,6 +60,11 @@ public class MainListPagerFragment extends BaseFragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     private class MovieListPagerAdapter extends FragmentStatePagerAdapter {
 
         CharSequence[] mTitles;
@@ -78,6 +81,7 @@ public class MainListPagerFragment extends BaseFragment {
         public Fragment getItem(int position) {
             return MainListFragment.newInstance(position);
         }
+        
 
         @Override
         public int getCount() {

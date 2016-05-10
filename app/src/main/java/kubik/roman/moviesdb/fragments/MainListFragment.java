@@ -1,5 +1,6 @@
 package kubik.roman.moviesdb.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ import java.util.List;
 import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
+import kubik.roman.moviesdb.activities.MovieDetailsActivity;
 import kubik.roman.moviesdb.adapters.MoviesListAdapter;
 import kubik.roman.moviesdb.models.Genre;
 import kubik.roman.moviesdb.models.movies_list.EndlessOnScrollListener;
@@ -35,7 +37,7 @@ import kubik.roman.moviesdb.models.movies_list.Movie;
 import kubik.roman.moviesdb.models.movies_list.MoviesList;
 
 /**
- * Fragment for displaying main list
+ * Fragment for displaying list of something
  */
 public class MainListFragment extends BaseFragment implements Response.ErrorListener {
 
@@ -74,6 +76,7 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
         queue = Volley.newRequestQueue(getBaseActivity());
         mType = getArguments().getInt(TYPE_TAG);
 
+        getBaseActivity().mToolbar.setTitle(R.string.app_name);
     }
 
     @Nullable
@@ -99,10 +102,12 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
             @Override
             public void onItemClick(View view, int position) {
                 Movie movie = mMovies.get(position);
-
-                MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.
-                        newInstance(movie.getId());
-                navigateTo(fragment, true);
+                Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
+                intent.putExtra("movie_id",movie.getId());
+                startActivity(intent);
+//                MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.
+//                        newInstance(movie.getId());
+                //navigateTo(fragment, true);
             }
         });
         recyclerView.setOnScrollListener(new EndlessOnScrollListener(linearLayoutManager) {
@@ -159,7 +164,7 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
         queue.add(request);
     }
 
-    private void updateListView(List<Movie> movies){
+    private void updateListView(List<Movie> movies) {
         mMovies.addAll(movies);
         if (!isInitialized) {
             initializeList();
@@ -174,26 +179,26 @@ public class MainListFragment extends BaseFragment implements Response.ErrorList
         String json;
 
         NetworkResponse response = error.networkResponse;
-        if(response != null && response.data != null){
-            switch(response.statusCode){
+        if (response != null && response.data != null) {
+            switch (response.statusCode) {
                 case 200:
                     break;
                 default:
                     json = new String(response.data);
                     json = trimMessage(json, "status_message");
-                    if(json != null) showToast(json);
+                    if (json != null) showToast(json);
                     break;
             }
         }
     }
 
-    public String trimMessage(String json, String key){
+    public String trimMessage(String json, String key) {
         String trimmedString = null;
 
-        try{
+        try {
             JSONObject obj = new JSONObject(json);
             trimmedString = obj.getString(key);
-        } catch(JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }

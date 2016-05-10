@@ -18,7 +18,7 @@ import kubik.roman.moviesdb.SlidingTabLayout;
 /**
  * Fragment for displaying ViewPager
  */
-public class MovieDetailsPagerFragment extends BaseFragment {
+public class MovieDetailsPagerFragment extends Fragment {
 
     public static final String MOVIE_ID_TAG = "movie_id";
 
@@ -56,7 +56,7 @@ public class MovieDetailsPagerFragment extends BaseFragment {
 
         CharSequence[] titles = {getString(R.string.details), getString(R.string.videos)};
 
-        PagerAdapter mPagerAdapter = new DetailsPagerAdapter(getFragmentManager(), titles, 2 );
+        PagerAdapter mPagerAdapter = new DetailsPagerAdapter(getFragmentManager(), titles, 2);
 
         mViewPager = (ViewPager) view.findViewById(R.id.details_pager);
         mViewPager.setAdapter(mPagerAdapter);
@@ -76,7 +76,20 @@ public class MovieDetailsPagerFragment extends BaseFragment {
         return view;
     }
 
+    private void refreshViewPager() {
+        if (mViewPager != null) {
+            CharSequence[] titles = {getString(R.string.details), getString(R.string.videos)};
+            mViewPager.setAdapter(null);
+            mViewPager.setAdapter(new DetailsPagerAdapter(getFragmentManager(), titles, 2));
+        }
+    }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshViewPager();
+    }
 
     public class DetailsPagerAdapter extends FragmentStatePagerAdapter {
 

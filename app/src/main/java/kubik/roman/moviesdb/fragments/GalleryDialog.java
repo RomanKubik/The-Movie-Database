@@ -51,8 +51,9 @@ public class GalleryDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.d(GalleryDialog.class.getSimpleName(), "onCreate");
+        //enables full screen of dialog
+        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         mImageList = getArguments().getParcelableArrayList(IMAGE_LIST_TAG);
         mCurrentPage = getArguments().getInt(POSITION_TAG);
     }
@@ -66,7 +67,7 @@ public class GalleryDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.image_gallery_dialog, container, false);
 
         mViewPager = (ViewPager) view.findViewById(R.id.gallery_pager);
-        mPagerAdapter = new GalleryPagerAdapter(getFragmentManager(), mCurrentPage);
+        mPagerAdapter = new GalleryPagerAdapter(getChildFragmentManager(), mCurrentPage);
         mViewPager.setAdapter(mPagerAdapter);
 
         return view;
@@ -88,7 +89,9 @@ public class GalleryDialog extends DialogFragment {
         public Fragment getItem(int position) {
 
             Log.d(GalleryPagerAdapter.class.getSimpleName(), "GetItem");
+
             Image image;
+
             if (position + page < mImageList.size()) {
                 image = mImageList.get(position + page);
             } else {

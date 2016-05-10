@@ -6,7 +6,7 @@
     <string name="log_in">Log in</string>
     <string name="cont">Skip</string>
     <string name="remember">Remember me</string>
-    
+
     <string name="invalid_authentication">Invalid Login or Password</string>
 
     <string name="popular">Popular</string>

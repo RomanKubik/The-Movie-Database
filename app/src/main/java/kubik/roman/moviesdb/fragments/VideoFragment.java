@@ -13,7 +13,7 @@ import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
 /**
  * Fragment for videos of movies
  */
-public class VideoFragment extends BaseFragment {
+public class VideoFragment extends Fragment {
 
     public static final String MOVIE_ID_TAG = "movie_id";
 

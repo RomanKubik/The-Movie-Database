@@ -25,11 +25,11 @@ public class BaseFragment extends Fragment {
     }
 
     protected void navigateTo(Fragment frg, boolean isAddToBackStack) {
-        getBaseActivity().loadFragment(frg, isAddToBackStack);
+        getBaseActivity().loadFragment(frg);
     }
 
     protected void navigateTo(Fragment frg) {
-        getBaseActivity().loadFragment(frg, true);
+        getBaseActivity().loadFragment(frg);
     }
 
     protected void showToast(String msg) {

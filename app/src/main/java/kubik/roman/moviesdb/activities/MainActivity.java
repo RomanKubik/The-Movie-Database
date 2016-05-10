@@ -1,15 +1,23 @@
 package kubik.roman.moviesdb.activities;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import kubik.roman.moviesdb.fragments.MainListFragment;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.fragments.MainListPagerFragment;
+
+
+/*********
+ * CHANGES
+ ***********/
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,12 +31,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initToolbar();
-
         getIntents();
-        Fragment fragment = MainListPagerFragment.newInstance();
-        loadFragment(fragment, true);
+        loadFragment(MainListPagerFragment.newInstance());
     }
 
     private void initToolbar() {
@@ -42,31 +47,50 @@ public class MainActivity extends AppCompatActivity {
         mSessionType = getIntent().getStringExtra(LoginActivity.SESSION_TYPE);
     }
 
-    public void loadFragment(Fragment fragment, boolean isAddToBackStack) {
-        try {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
-            if (isAddToBackStack) {
-                transaction.addToBackStack(fragment.getClass().getSimpleName());
-            }
-            transaction.commit();
-        } catch (Exception e) {
-            Log.d(MainActivity.class.getSimpleName(), e.getLocalizedMessage());
+    public void loadFragment(Fragment fragment) {
+        String backStateName = fragment.getClass().getName();
+        FragmentManager manager = this.getSupportFragmentManager();
+        boolean fragmentPopped = manager.popBackStackImmediate(backStateName, 0);
+
+        if (!fragmentPopped && manager.findFragmentByTag(backStateName) == null) {
+            //fragment not in back stack, create it.
+            FragmentTransaction ft = manager.beginTransaction();
+            ft.replace(R.id.content_frame, fragment, backStateName);
+            ft.addToBackStack(backStateName);
+            ft.commit();
         }
         supportInvalidateOptionsMenu();
     }
 
 
-
     @Override
     public void onBackPressed() {
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 
-        if (currentFragment instanceof MainListPagerFragment) {
-            MainActivity.this.finish();
-        } else {
-            getSupportFragmentManager().popBackStackImmediate();
+        switch (getCurrentFragment().getClass().getSimpleName()) {
+            case "MovieDetailsPagerFragment":
+                getSupportFragmentManager().popBackStack();
+                break;
+            default:
+                loadLogInActivity();
         }
+
+    }
+
+    /**
+     * Loads LoginActivity on back press action
+     */
+    private void loadLogInActivity() {
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
+    /**
+     * Returns instance of a Fragment user's currently on
+     *
+     * @return - Fragment
+     */
+    private Fragment getCurrentFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.content_frame);
     }
 
 

@@ -17,7 +17,7 @@ import kubik.roman.moviesdb.TmdbUrlBuilder;
 /**
  * Item of image gallery. Only one image fullscreen
  */
-public class GalleryItemFragment extends BaseFragment {
+public class GalleryItemFragment extends Fragment {
     public static final String URL_TAG = "URL";
     private String mImgUrl;
 
@@ -49,7 +49,7 @@ public class GalleryItemFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.image_gallery_item, container, false);
         ImageView imgGalleryItem = (ImageView) view.findViewById(R.id.imv_gallery_item);
 
-        Picasso.with(getBaseActivity()).load(mImgUrl).fit().centerInside().into(imgGalleryItem);
+        Picasso.with(getActivity()).load(mImgUrl).fit().centerInside().into(imgGalleryItem);
 
         return view;
     }

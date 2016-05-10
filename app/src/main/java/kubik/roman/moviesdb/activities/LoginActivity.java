@@ -178,6 +178,12 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
         }
     }
 
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
     @Override
     public void onErrorResponse(VolleyError error) {
         String json = null;

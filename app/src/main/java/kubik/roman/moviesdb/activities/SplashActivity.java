@@ -38,8 +38,6 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
-
-
     }
 
     @Override
@@ -59,7 +57,6 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
             @Override
             public void onFinish() {
                 intent.putExtra("Token", mToken);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 finish();
             }
@@ -81,7 +78,7 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        String json = null;
+        String json;
 
         NetworkResponse response = error.networkResponse;
         if(response != null && response.data != null){
