@@ -40,6 +40,9 @@ public class TmdbUrlBuilder {
     //Api key
     private static final String API_KEY = "?api_key=f3fe610fbf5ef2e3b5e06d701a2ba5a3";
 
+    //Videos posters
+    private static final String VIDEO_POSTER = "https://img.youtube.com/vi/";
+    private static final String END_OF_POSTER = "/0.jpg";
 
     private static TmdbUrlBuilder instance;
 
@@ -125,5 +128,9 @@ public class TmdbUrlBuilder {
 
     public static String getMoviesListUpcomingUrl(int page) {
         return MOVIE_BASE_URL + MOVIES_LIST_UPCOMING_URL + API_KEY + "&" + MOVIES_LIST_PAGE + String.valueOf(page);
+    }
+
+    public static String getVideoPoster(String key) {
+        return VIDEO_POSTER + key + END_OF_POSTER;
     }
 }

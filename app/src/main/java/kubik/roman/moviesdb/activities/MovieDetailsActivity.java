@@ -11,6 +11,7 @@ import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.fragments.GalleryDialog;
 import kubik.roman.moviesdb.fragments.MovieDetailsFragment;
 import kubik.roman.moviesdb.fragments.MovieDetailsPagerFragment;
+import kubik.roman.moviesdb.fragments.VideoListFragment;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -64,6 +65,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
             if (fragment instanceof MovieDetailsPagerFragment) {
                 finish();
             } else if (fragment instanceof MovieDetailsFragment) {
+                getSupportFragmentManager().popBackStackImmediate();
+            } else if (fragment instanceof VideoListFragment) {
                 getSupportFragmentManager().popBackStackImmediate();
             }
             Log.d("MovieDetailsActivity", fragment.getClass().getSimpleName());

@@ -9,4 +9,20 @@ import java.util.List;
 public class MovieVideos {
     private int id;
     private List<VideoDetails> results = new ArrayList<>();
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<VideoDetails> getResults() {
+        return results;
+    }
+
+    public void setResults(List<VideoDetails> results) {
+        this.results = results;
+    }
 }

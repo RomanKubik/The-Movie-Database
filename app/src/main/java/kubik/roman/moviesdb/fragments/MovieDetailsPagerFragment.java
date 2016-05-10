@@ -110,7 +110,7 @@ public class MovieDetailsPagerFragment extends Fragment {
                 case 0:
                     return MovieDetailsFragment.newInstance(mMovieId);
                 case 1:
-                    return VideoFragment.newInstance(mMovieId);
+                    return VideoListFragment.newInstance(mMovieId);
                 default:
                     return MovieDetailsFragment.newInstance(mMovieId);
             }

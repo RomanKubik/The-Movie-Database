@@ -14,11 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -94,7 +92,6 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
     private List<Movie> mSimilarMoviesList = new ArrayList<>();
 
     private RequestQueue queue;
-    private Gson gson;
 
     private MovieDetailsActivity mActivity;
 
@@ -171,7 +168,6 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
     }
 
     private void getAllMovieDetails() {
-        gson = new Gson();
         //Get Base details
         GsonGetRequest<MovieDetails> requestDetails = new GsonGetRequest<>(TmdbUrlBuilder.getDetailsUrl(mMovieId),
                 MovieDetails.class, null, new Response.Listener<MovieDetails>() {
@@ -182,6 +178,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             }
         }, this);
         queue.add(requestDetails);
+
         //Get Images
         GsonGetRequest<MovieImages> requestImages = new GsonGetRequest<>(TmdbUrlBuilder.getImagesUrl(mMovieId),
                 MovieImages.class, null, new Response.Listener<MovieImages>() {
@@ -192,17 +189,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             }
         }, this);
         queue.add(requestImages);
-        /*
-        //Get Videos
-        GET(TmdbUrlBuilder.getVideosUrl(mMovieId), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (Validator.isStringValid(response)) {
-                    mMovieVideos = gson.fromJson(response, MovieVideos.class);
-                    Log.d(TAG, "Videos");
-                }
-            }
-        }, this);*/
+
         //Get Reviews
         GsonGetRequest<MovieReviews> requestReviews = new GsonGetRequest<>(TmdbUrlBuilder.getReviewsUrl(mMovieId),
                 MovieReviews.class, null, new Response.Listener<MovieReviews>() {
@@ -213,6 +200,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             }
         }, this);
         queue.add(requestReviews);
+
         //Get Casts
         GsonGetRequest<Credits> requestCredits = new GsonGetRequest<>(TmdbUrlBuilder.getMovieCredits(mMovieId),
                 Credits.class, null, new Response.Listener<Credits>() {
@@ -223,6 +211,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             }
         }, this);
         queue.add(requestCredits);
+
         //Get Similar movies
         GsonGetRequest<MoviesList> requestSimilar = new GsonGetRequest<>(TmdbUrlBuilder.getSimilarListUrl(mMovieId),
                 MoviesList.class, null, new Response.Listener<MoviesList>() {

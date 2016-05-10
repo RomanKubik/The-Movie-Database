@@ -37,4 +37,8 @@
     <string name="no_tagline">No tagline</string>
     <string name="no_rating">No rating</string>
 
+
+
+    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
+
 </resources>
