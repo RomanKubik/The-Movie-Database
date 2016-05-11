@@ -106,7 +106,7 @@ public class MovieReviewFragment extends Fragment implements Response.ErrorListe
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        String json = null;
+        String json;
 
         if(error instanceof NoConnectionError) {
             json = "No internet Access, Check your internet connection.";
@@ -122,7 +122,8 @@ public class MovieReviewFragment extends Fragment implements Response.ErrorListe
                 default:
                     json = new String(response.data);
                     json = trimMessage(json, "status_message");
-                    //if (json != null) showToast(json);
+                    if (json != null)
+                        Toast.makeText(getActivity(), json, Toast.LENGTH_LONG).show();
                     break;
             }
         }

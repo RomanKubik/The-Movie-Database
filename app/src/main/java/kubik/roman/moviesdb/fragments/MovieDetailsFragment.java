@@ -329,7 +329,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             public void onItemClick(View view, int position) {
 
                 int id = mSimilarMovies.getResults().get(position).getId();
-                MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(id);
+                MovieDetailsPagerFragment movieDetailsFragment = MovieDetailsPagerFragment.newInstance(id);
                 mActivity.forceLoadFragment(movieDetailsFragment);
 
             }
