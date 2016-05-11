@@ -7,11 +7,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.fragments.GalleryDialog;
 import kubik.roman.moviesdb.fragments.MovieDetailsFragment;
 import kubik.roman.moviesdb.fragments.MovieDetailsPagerFragment;
+import kubik.roman.moviesdb.fragments.MovieReviewFragment;
 import kubik.roman.moviesdb.fragments.VideoListFragment;
+import kubik.roman.moviesdb.models.movies_detailes.Review;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -66,9 +70,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 finish();
             } else if (fragment instanceof MovieDetailsFragment) {
                 getSupportFragmentManager().popBackStackImmediate();
-            } else if (fragment instanceof VideoListFragment) {
+            } else if (fragment instanceof MovieReviewFragment) {
                 getSupportFragmentManager().popBackStackImmediate();
             }
+
             Log.d("MovieDetailsActivity", fragment.getClass().getSimpleName());
         }
 

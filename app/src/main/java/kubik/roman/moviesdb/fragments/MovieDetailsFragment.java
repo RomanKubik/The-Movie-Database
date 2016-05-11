@@ -51,7 +51,7 @@ import kubik.roman.moviesdb.util.Validator;
 /**
  * Fragment for displaying full information about selected movie
  */
-public class MovieDetailsFragment extends Fragment implements Response.ErrorListener {
+public class MovieDetailsFragment extends Fragment implements Response.ErrorListener, View.OnClickListener {
 
     public static final String TAG = MovieDetailsFragment.class.getName();
 
@@ -82,6 +82,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
     private TextView mTvBudget;
     private TextView mTvProdCountries;
     private TextView mTvProdCompanies;
+    private TextView mTvReviews;
 
     private RecyclerView mRvPictures;
     private RecyclerView mRvCasts;
@@ -160,6 +161,9 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
         //Companies and countries
         mTvProdCountries = (TextView) view.findViewById(R.id.tv_countries);
         mTvProdCompanies = (TextView) view.findViewById(R.id.tv_companies);
+
+        //Reviews
+        mTvReviews = (TextView) view.findViewById(R.id.tv_review);
 
         //Similar movies
         mRvSimilar = (RecyclerView) view.findViewById(R.id.rv_similar_movies);
@@ -286,6 +290,8 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             str = "Unknown";
         }
         mTvProdCompanies.setText(str);
+
+        mTvReviews.setOnClickListener(this);
     }
 
     private void setupImages() {
@@ -371,5 +377,17 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
         }
 
         return trimmedString;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_review:
+                MovieReviewFragment movieReviewFragment = MovieReviewFragment.newInstance(mMovieId);
+                mActivity.forceLoadFragment(movieReviewFragment);
+                break;
+            default:
+                break;
+        }
     }
 }

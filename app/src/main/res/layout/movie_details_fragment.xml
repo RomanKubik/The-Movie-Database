@@ -224,7 +224,9 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:layout_marginBottom="@dimen/spacing_normal"
-            android:layout_marginLeft="@dimen/spacing_tiny"/>
+            android:layout_marginLeft="@dimen/spacing_tiny"
+            android:text="@string/view_reviews"
+            android:id="@+id/tv_review"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
