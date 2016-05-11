@@ -1,6 +1,7 @@
 package kubik.roman.moviesdb.adapters;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.models.movies_detailes.Review;
+import kubik.roman.moviesdb.models.movie_details.Review;
 
 /**
  * Created by roman on 5/11/2016.
@@ -37,6 +38,7 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
     public void onBindViewHolder(ReviewListAdapter.ViewHolder holder, int position) {
         Review review = mReviewList.get(position);
 
+        holder.mTvAuthor.setPaintFlags(holder.mTvAuthor.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         holder.mTvAuthor.setText(review.getAuthor());
         holder.mTvReview.setText(review.getContent());
     }

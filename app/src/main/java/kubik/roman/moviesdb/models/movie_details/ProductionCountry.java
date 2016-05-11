@@ -1,9 +1,6 @@
-package kubik.roman.moviesdb.models.movies_detailes;
+package kubik.roman.moviesdb.models.movie_details;
 
 import com.google.gson.annotations.SerializedName;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by roman on 3/26/2016.

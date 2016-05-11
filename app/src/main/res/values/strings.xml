@@ -32,12 +32,20 @@
     <string name="reviews">Reviews:</string>
     <string name="casts">Casts:</string>
     <string name="similar">Something similar:</string>
+
+    <string name="birth_place">Place of birth:</string>
+    <string name="homepage">Homepage:</string>
+    <string name="known_for">Known for:</string>
+    <string name="photos">Photos:</string>
     <string name="dollars">\t $$$</string>
+    <string name="stars">***</string>
+
+
 
     <string name="no_tagline">No tagline</string>
     <string name="no_rating">No rating</string>
     <string name="view_reviews"><u>View all reviews</u></string>
-    
+    <string name="no_homepage">No homepage</string>
     
 
     <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>

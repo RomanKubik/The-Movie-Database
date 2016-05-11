@@ -14,19 +14,16 @@ import java.util.List;
 
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
-import kubik.roman.moviesdb.models.movie_details.Cast;
+import kubik.roman.moviesdb.models.person_details.Cast;
 
-/**
- * Adapter for showing casts
- */
-public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.ViewHolder> {
+public class KnownAsListAdapter extends RecyclerView.Adapter<KnownAsListAdapter.ViewHolder> {
 
     private List<Cast> mCasts;
     private Context mContext;
 
     private OnItemClickListener mItemClickListener;
 
-    public CastsListAdapter(List<Cast> casts, Context context) {
+    public KnownAsListAdapter(List<Cast> casts, Context context) {
         this.mCasts = casts;
         this.mContext = context;
     }
@@ -43,15 +40,14 @@ public class CastsListAdapter extends RecyclerView.Adapter<CastsListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Cast cast = mCasts.get(position);
-        Picasso.with(mContext).load(TmdbUrlBuilder.getPosterBaseUrl(cast.getProfilePath())).fit().into(holder.imageView);
-        holder.textView.setText(cast.getName());
+        Picasso.with(mContext).load(TmdbUrlBuilder.getPosterBaseUrl(cast.getPosterPath())).fit().into(holder.imageView);
+        holder.textView.setText(cast.getTitle());
     }
 
     @Override
     public int getItemCount() {
         if (mCasts.size() > 10) return 10;
         else return mCasts.size();
-
     }
 
     public interface OnItemClickListener {

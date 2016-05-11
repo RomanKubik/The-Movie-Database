@@ -21,9 +21,8 @@ import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.adapters.ReviewListAdapter;
-import kubik.roman.moviesdb.models.movies_detailes.MovieDetails;
-import kubik.roman.moviesdb.models.movies_detailes.MovieReviews;
-import kubik.roman.moviesdb.models.movies_detailes.Review;
+import kubik.roman.moviesdb.models.movie_details.MovieReviews;
+import kubik.roman.moviesdb.models.movie_details.Review;
 
 /**
  * Created by roman on 5/11/2016.

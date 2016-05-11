@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.models.movies_detailes.Image;
+import kubik.roman.moviesdb.models.movie_details.Image;
 
 /**
  * Gallery of images

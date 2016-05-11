@@ -13,7 +13,7 @@ import java.util.List;
 
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
-import kubik.roman.moviesdb.models.movies_detailes.Image;
+import kubik.roman.moviesdb.models.movie_details.Image;
 
 /**
  * Adapter for displaying list of images
@@ -22,6 +22,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     private List<Image> mImage;
     private Context mContext;
+    //image orientation true-horizontal(default), false-vertical
+    private boolean mIsHorizontal = true;
 
     private OnItemClickListener mItemClickListener;
 
@@ -33,17 +35,22 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         this.mItemClickListener = mItemClickListener;
     }
 
-    public ImageListAdapter(List<Image> image, Context context) {
+    public ImageListAdapter(List<Image> image, Context context, boolean isHorizontal) {
         mImage = image;
         mContext = context;
+        mIsHorizontal = isHorizontal;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
-        View view = inflater.inflate(R.layout.movie_img_item, parent, false);
+        View view;
+        if(mIsHorizontal) {
+            view = inflater.inflate(R.layout.movie_img_item_horizontal, parent, false);
+        } else {
+            view = inflater.inflate(R.layout.movie_img_item_vertical, parent, false);
+        }
         return new ViewHolder(view);
     }
 

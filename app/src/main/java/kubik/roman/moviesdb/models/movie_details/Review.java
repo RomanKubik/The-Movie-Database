@@ -1,4 +1,4 @@
-package kubik.roman.moviesdb.models.movies_detailes;
+package kubik.roman.moviesdb.models.movie_details;
 
 /**
  * Created by roman on 4/2/2016.

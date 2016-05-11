@@ -2,7 +2,6 @@ package kubik.roman.moviesdb.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,8 +27,8 @@ import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.activities.MovieDetailsActivity;
 import kubik.roman.moviesdb.adapters.VideoListAdapter;
-import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
-import kubik.roman.moviesdb.models.movies_detailes.VideoDetails;
+import kubik.roman.moviesdb.models.movie_details.MovieVideos;
+import kubik.roman.moviesdb.models.movie_details.VideoDetails;
 
 /**
  * Created by roman on 5/10/2016.

@@ -1,7 +1,4 @@
-package kubik.roman.moviesdb.models.movies_detailes;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+package kubik.roman.moviesdb.models.movie_details;
 
 /**
  * Created by roman on 3/26/2016.

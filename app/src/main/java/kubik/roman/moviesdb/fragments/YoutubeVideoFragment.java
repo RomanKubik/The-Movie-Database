@@ -72,7 +72,6 @@ public class YoutubeVideoFragment extends DialogFragment {
                                                 YouTubePlayer youTubePlayer, boolean b) {
                 if (!b) {
                     mYoutubePlayer = youTubePlayer;
-                    mYoutubePlayer.setFullscreen(true);
                     mYoutubePlayer.loadVideo(mVideoKey);
                     mYoutubePlayer.play();
                 }

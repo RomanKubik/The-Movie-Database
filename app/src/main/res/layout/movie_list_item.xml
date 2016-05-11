@@ -36,7 +36,7 @@
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/text_size_large_plus"
+                android:textSize="@dimen/text_size_super_large"
                 android:textColor="@color/black"/>
 
             <LinearLayout

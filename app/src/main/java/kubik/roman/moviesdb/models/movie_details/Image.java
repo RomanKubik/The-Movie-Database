@@ -1,4 +1,4 @@
-package kubik.roman.moviesdb.models.movies_detailes;
+package kubik.roman.moviesdb.models.movie_details;
 
 import android.os.Parcel;
 import android.os.Parcelable;

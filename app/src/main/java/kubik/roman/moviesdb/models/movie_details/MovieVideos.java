@@ -1,4 +1,4 @@
-package kubik.roman.moviesdb.models.movies_detailes;
+package kubik.roman.moviesdb.models.movie_details;
 
 import java.util.ArrayList;
 import java.util.List;

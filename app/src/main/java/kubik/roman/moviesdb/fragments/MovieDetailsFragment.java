@@ -12,13 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -35,15 +35,13 @@ import kubik.roman.moviesdb.adapters.CastsListAdapter;
 import kubik.roman.moviesdb.adapters.ImageListAdapter;
 import kubik.roman.moviesdb.adapters.SimilarListAdapter;
 import kubik.roman.moviesdb.models.Genre;
-import kubik.roman.moviesdb.models.movies_detailes.Cast;
-import kubik.roman.moviesdb.models.movies_detailes.Credits;
-import kubik.roman.moviesdb.models.movies_detailes.Image;
-import kubik.roman.moviesdb.models.movies_detailes.MovieDetails;
-import kubik.roman.moviesdb.models.movies_detailes.MovieImages;
-import kubik.roman.moviesdb.models.movies_detailes.MovieReviews;
-import kubik.roman.moviesdb.models.movies_detailes.MovieVideos;
-import kubik.roman.moviesdb.models.movies_detailes.ProductionCompany;
-import kubik.roman.moviesdb.models.movies_detailes.ProductionCountry;
+import kubik.roman.moviesdb.models.movie_details.Cast;
+import kubik.roman.moviesdb.models.movie_details.Credits;
+import kubik.roman.moviesdb.models.movie_details.Image;
+import kubik.roman.moviesdb.models.movie_details.MovieDetails;
+import kubik.roman.moviesdb.models.movie_details.MovieImages;
+import kubik.roman.moviesdb.models.movie_details.ProductionCompany;
+import kubik.roman.moviesdb.models.movie_details.ProductionCountry;
 import kubik.roman.moviesdb.models.movies_list.Movie;
 import kubik.roman.moviesdb.models.movies_list.MoviesList;
 import kubik.roman.moviesdb.util.Validator;
@@ -59,8 +57,6 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
 
     private MovieDetails mMovieDetails;
     private MovieImages mMovieImages;
-    private MovieVideos mMovieVideos;
-    private MovieReviews mMoviesReviews;
     private Credits mMovieCredits;
     private MoviesList mSimilarMovies;
 
@@ -194,17 +190,6 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
         }, this);
         queue.add(requestImages);
 
-        //Get Reviews
-        GsonGetRequest<MovieReviews> requestReviews = new GsonGetRequest<>(TmdbUrlBuilder.getReviewsUrl(mMovieId),
-                MovieReviews.class, null, new Response.Listener<MovieReviews>() {
-            @Override
-            public void onResponse(MovieReviews response) {
-                mMoviesReviews = response;
-
-            }
-        }, this);
-        queue.add(requestReviews);
-
         //Get Casts
         GsonGetRequest<Credits> requestCredits = new GsonGetRequest<>(TmdbUrlBuilder.getMovieCredits(mMovieId),
                 Credits.class, null, new Response.Listener<Credits>() {
@@ -298,7 +283,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
         Log.d(TAG, "SetupImages");
         mImagesList.clear();
         mImagesList.addAll(mMovieImages.getBackdrops());
-        ImageListAdapter imageAdapter = new ImageListAdapter(mImagesList, getActivity());
+        ImageListAdapter imageAdapter = new ImageListAdapter(mImagesList, getActivity(), true);
         mRvPictures.setAdapter(imageAdapter);
         mRvPictures.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.HORIZONTAL, false));
@@ -324,6 +309,9 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
             @Override
             public void onItemClick(View view, int position) {
                 Log.d(TAG, mCastsList.get(position).getName());
+                int id = mCastsList.get(position).getId();
+                CastDetailsFragment castDetailsFragment = CastDetailsFragment.newInstance(id);
+                mActivity.forceLoadFragment(castDetailsFragment);
             }
         });
     }
@@ -349,7 +337,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        String json = null;
+        String json;
 
         NetworkResponse response = error.networkResponse;
         if (response != null && response.data != null) {
@@ -359,7 +347,7 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
                 default:
                     json = new String(response.data);
                     json = trimMessage(json, "status_message");
-                    //if (json != null) showToast(json);
+                    if (json != null) Toast.makeText(mActivity, json, Toast.LENGTH_LONG).show();
                     break;
             }
         }

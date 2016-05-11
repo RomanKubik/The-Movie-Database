@@ -16,6 +16,7 @@
     <dimen name="text_size_questions">16sp</dimen>
     <dimen name="text_size_medium">18sp</dimen>
     <dimen name="text_size_large">22sp</dimen>
+    <dimen name="text_size_more_large">26sp</dimen>
     <dimen name="text_size_super_large">28sp</dimen>
     <dimen name="text_size_large_plus">30sp</dimen>
 

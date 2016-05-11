@@ -44,6 +44,11 @@ public class TmdbUrlBuilder {
     private static final String VIDEO_POSTER = "https://img.youtube.com/vi/";
     private static final String END_OF_POSTER = "/0.jpg";
 
+    //Person info
+    private static final String PERSON_BASE_URL = "http://api.themoviedb.org/3/person/";
+    private static final String PERSON_MOVIE_CREDITS = "/movie_credits";
+    private static final String PERSON_PHOTOS = "/images";
+
     private static TmdbUrlBuilder instance;
 
     private TmdbUrlBuilder() {
@@ -132,5 +137,17 @@ public class TmdbUrlBuilder {
 
     public static String getVideoPoster(String key) {
         return VIDEO_POSTER + key + END_OF_POSTER;
+    }
+
+    public static String getBasePersonInfo(int personId) {
+        return PERSON_BASE_URL + String.valueOf(personId) + API_KEY;
+    }
+
+    public static String getMovieCreditsPerson(int personId) {
+        return PERSON_BASE_URL + String.valueOf(personId) + PERSON_MOVIE_CREDITS + API_KEY;
+    }
+
+    public static String getPersonPhotos(int personId) {
+        return PERSON_BASE_URL + String.valueOf(personId) + PERSON_PHOTOS + API_KEY;
     }
 }

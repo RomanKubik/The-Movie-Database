@@ -14,7 +14,7 @@ import java.util.List;
 
 import kubik.roman.moviesdb.R;
 import kubik.roman.moviesdb.TmdbUrlBuilder;
-import kubik.roman.moviesdb.models.movies_detailes.VideoDetails;
+import kubik.roman.moviesdb.models.movie_details.VideoDetails;
 
 /**
  * Created by roman on 5/10/2016.

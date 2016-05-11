@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tv_review_author"
-        android:textSize="@dimen/text_size_medium"
+        android:textSize="@dimen/text_size_large"
         android:layout_marginLeft="@dimen/spacing_tiny"
         android:textColor="@color/black"/>
     <TextView
@@ -17,4 +17,12 @@
         android:layout_marginTop="@dimen/spacing_tiny"
         android:layout_marginLeft="@dimen/spacing_tiny"
         android:textColor="@color/black"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:text="@string/stars"
+        android:gravity="center"
+        android:textSize="@dimen/text_size_large_plus"
+        android:textColor="@color/tmdb_base"/>
 </LinearLayout>
