@@ -10,8 +10,7 @@
         <ImageView
             android:id="@+id/iv_title"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/backdrop_size"
-            android:background="#ff0000" />
+            android:layout_height="@dimen/backdrop_size"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,8 +22,7 @@
                 android:id="@+id/iv_poster"
                 android:layout_width="@dimen/poster_width"
                 android:layout_height="@dimen/poster_height"
-                android:layout_marginRight="@dimen/spacing_tiny"
-                android:background="#00ff00" />
+                android:layout_marginRight="@dimen/spacing_tiny"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

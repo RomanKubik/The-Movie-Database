@@ -7,13 +7,11 @@
     <ImageView
         android:layout_width="@dimen/poster_width"
         android:layout_height="@dimen/poster_height"
-        android:id="@+id/imv_cast"
-        android:background="#f0000f"/>
+        android:id="@+id/imv_cast"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="@dimen/button_height_tall"
         android:textSize="@dimen/text_size_large"
-        android:text="Robert Denyro"
         android:gravity="center"
         android:id="@+id/tv_cast"
         android:textColor="@color/black"/>

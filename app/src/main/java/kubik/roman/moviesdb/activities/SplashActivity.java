@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,7 +33,21 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
 
     public static final String TAG = SplashActivity.class.getSimpleName();
 
+    private byte mChecksum = 0;
+
     private Token mToken;
+
+
+
+    private void startNextActivity() {
+        final Intent intent = new Intent(this, LoginActivity.class);
+        mChecksum++;
+        if (mChecksum == 2) {
+            intent.putExtra("Token", mToken);
+            startActivity(intent);
+            finish();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +61,6 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
 
         makeRequest();
 
-        final Intent intent = new Intent(this, LoginActivity.class);
-
         new CountDownTimer(4000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -56,9 +69,7 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
 
             @Override
             public void onFinish() {
-                intent.putExtra("Token", mToken);
-                startActivity(intent);
-                finish();
+                startNextActivity();
             }
         }.start();
     }
@@ -70,6 +81,7 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
                 Token.class, null, new Response.Listener<Token>() {
             @Override
             public void onResponse(Token response) {
+                startNextActivity();
                 mToken = response;
             }
         }, this);
@@ -81,6 +93,13 @@ public class SplashActivity extends Activity implements Response.ErrorListener {
         String json;
 
         NetworkResponse response = error.networkResponse;
+
+        if(error instanceof NoConnectionError) {
+            json = "No internet Access, Check your internet connection.";
+            displayMessage(json);
+            return;
+        }
+
         if(response != null && response.data != null){
             switch(response.statusCode){
                 case 200:
