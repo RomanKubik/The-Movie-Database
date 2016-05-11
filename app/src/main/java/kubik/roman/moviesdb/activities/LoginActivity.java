@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -187,6 +188,12 @@ public class LoginActivity extends Activity implements View.OnClickListener, Res
     @Override
     public void onErrorResponse(VolleyError error) {
         String json = null;
+
+        if(error instanceof NoConnectionError) {
+            json = "No internet Access, Check your internet connection.";
+            displayMessage(json);
+            return;
+        }
 
         NetworkResponse response = error.networkResponse;
         if(response != null && response.data != null){

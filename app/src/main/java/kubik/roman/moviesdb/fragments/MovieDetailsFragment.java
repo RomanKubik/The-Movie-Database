@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -338,6 +339,12 @@ public class MovieDetailsFragment extends Fragment implements Response.ErrorList
     @Override
     public void onErrorResponse(VolleyError error) {
         String json;
+
+        if(error instanceof NoConnectionError) {
+            json = "No internet Access, Check your internet connection.";
+            Toast.makeText(mActivity, json, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         NetworkResponse response = error.networkResponse;
         if (response != null && response.data != null) {

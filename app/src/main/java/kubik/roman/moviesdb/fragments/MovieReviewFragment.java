@@ -8,11 +8,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +106,39 @@ public class MovieReviewFragment extends Fragment implements Response.ErrorListe
 
     @Override
     public void onErrorResponse(VolleyError error) {
+        String json = null;
 
+        if(error instanceof NoConnectionError) {
+            json = "No internet Access, Check your internet connection.";
+            Toast.makeText(getActivity(), json, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        NetworkResponse response = error.networkResponse;
+        if (response != null && response.data != null) {
+            switch (response.statusCode) {
+                case 200:
+                    break;
+                default:
+                    json = new String(response.data);
+                    json = trimMessage(json, "status_message");
+                    //if (json != null) showToast(json);
+                    break;
+            }
+        }
+    }
+
+    public String trimMessage(String json, String key) {
+        String trimmedString = null;
+
+        try {
+            JSONObject obj = new JSONObject(json);
+            trimmedString = obj.getString(key);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return trimmedString;
     }
 }
