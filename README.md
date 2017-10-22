@@ -1,5 +1,4 @@
 # The-Movie-Database
-If you will look on this project please check branch "advanced"
 
 This app allows you to quick search movies in four categories: Top rated, Now playing, Popular and Upcomming. You can get detailed information about movie.
 
