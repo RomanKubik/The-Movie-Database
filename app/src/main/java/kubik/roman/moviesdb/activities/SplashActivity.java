@@ -7,20 +7,47 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
 import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.concurrent.ExecutionException;
-
-import kubik.roman.moviesdb.HttpConnectionManager;
+import kubik.roman.moviesdb.GsonGetRequest;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
 import kubik.roman.moviesdb.models.Token;
 import kubik.roman.moviesdb.R;
 
 /**
  * Activity for downloading token and demonstrate logo
  */
-public class SplashActivity extends Activity implements HttpConnectionManager.OnRespondListener {
+public class SplashActivity extends Activity implements Response.ErrorListener {
+
+
+    public static final String TAG = SplashActivity.class.getSimpleName();
+
+    private byte mChecksum = 0;
 
     private Token mToken;
+
+
+
+    private void startNextActivity() {
+        final Intent intent = new Intent(this, LoginActivity.class);
+        mChecksum++;
+        if (mChecksum == 2) {
+            intent.putExtra("Token", mToken);
+            startActivity(intent);
+            finish();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,52 +59,75 @@ public class SplashActivity extends Activity implements HttpConnectionManager.On
     protected void onResume() {
         super.onResume();
 
-        Log.d("SplashActivity", "onResume");
+        makeRequest();
 
-
-        final Intent intent = new Intent(this, LoginActivity.class);
-
-        new CountDownTimer(4000, 2000) {
-
+        new CountDownTimer(4000, 1000) {
+            @Override
             public void onTick(long millisUntilFinished) {
-                Log.d("SplashActivity", "onTick");
-                try {
-                    sendTokenRequest();
-                } catch (ExecutionException | InterruptedException | JSONException e) {
-                    Log.d("onResume SplashActivity", e.toString());
-                }
+
             }
 
+            @Override
             public void onFinish() {
-                intent.putExtra("Token", mToken);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
+                startNextActivity();
             }
         }.start();
-
     }
 
-    //Send request to get token using HttpConnectionManager
-    public void sendTokenRequest() throws ExecutionException, InterruptedException, JSONException {
-        HttpConnectionManager httpManager = new HttpConnectionManager(this);
+    private void makeRequest() {
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-        httpManager.setOnRespondListener(this);
-
-        mToken = new Token();
-
-        httpManager.GET(mToken.REQUESTED);
-    }
-
-
-    @Override
-    public void onRespond(String respond, String requested) throws JSONException, ExecutionException, InterruptedException {
-        mToken.setTokenFromJsonStr(respond);
-        Log.d("SplashActivity", "Token was gotten");
+        GsonGetRequest<Token> request = new GsonGetRequest<>(TmdbUrlBuilder.getTokenUrlWithApiKey(),
+                Token.class, null, new Response.Listener<Token>() {
+            @Override
+            public void onResponse(Token response) {
+                startNextActivity();
+                mToken = response;
+            }
+        }, this);
+        queue.add(request);
     }
 
     @Override
-    public void onError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+    public void onErrorResponse(VolleyError error) {
+        String json;
+
+        NetworkResponse response = error.networkResponse;
+
+        if(error instanceof NoConnectionError) {
+            json = "No internet Access, Check your internet connection.";
+            displayMessage(json);
+            return;
+        }
+
+        if(response != null && response.data != null){
+            switch(response.statusCode){
+                case 200:
+                    break;
+                default:
+                    json = new String(response.data);
+                    json = trimMessage(json, "status_message");
+                    if(json != null) displayMessage(json);
+                    break;
+            }
+        }
     }
+
+    public String trimMessage(String json, String key){
+        String trimmedString = "";
+        try{
+            JSONObject obj = new JSONObject(json);
+            trimmedString = obj.getString(key);
+        } catch(JSONException e){
+            e.printStackTrace();
+            return trimmedString;
+        }
+
+        return trimmedString;
+    }
+
+    public void displayMessage(String toastString){
+        Toast.makeText(getApplicationContext(), toastString, Toast.LENGTH_LONG).show();
+    }
+
 }

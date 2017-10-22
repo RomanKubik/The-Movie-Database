@@ -5,17 +5,49 @@
     <string name="password">Password</string>
     <string name="log_in">Log in</string>
     <string name="cont">Skip</string>
-    
-    <string name="invalidAuthentication">Invalid Login or Password</string>
-    <string name="genres">Genres</string>
+    <string name="remember">Remember me</string>
 
-    <string name="release_date">Release date</string>
-    <string name="production_companies">Production countries</string>
-    <string name="production_countries">Production countries</string>
-    <string name="tagline">Tagline</string>
-    <string name="runtime">Runtime</string>
-    <string name="original_title">Original title</string>
-    <string name="budget">Budget</string>
-    <string name="spoken_languages">Spoken languages</string>
+    <string name="invalid_authentication">Invalid Login or Password</string>
+
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="now_playing">Now playing</string>
+
+    <string name="details">Details</string>
+    <string name="videos">Videos</string>
+
+    <string name="genres">Genres</string>
+    <string name="minutes">min</string>
+
+    <string name="release_date">Release date:</string>
+    <string name="pictures">Pictures:</string>
+    <string name="production_companies">Production companies:</string>
+    <string name="production_countries">Production countries:</string>
+    <string name="tagline">Tagline:</string>
+    <string name="runtime">Runtime:</string>
+    <string name="original_title">Original title:</string>
+    <string name="budget">Budget:</string>
+    <string name="spoken_languages">Spoken languages:</string>
+    <string name="reviews">Reviews:</string>
+    <string name="casts">Casts:</string>
+    <string name="similar">Something similar:</string>
+
+    <string name="birth_place">Place of birth:</string>
+    <string name="homepage">Homepage:</string>
+    <string name="known_for">Known for:</string>
+    <string name="photos">Photos:</string>
+    <string name="dollars">\t $$$</string>
+    <string name="stars">***</string>
+
+
+
+    <string name="no_tagline">No tagline</string>
+    <string name="no_rating">No rating</string>
+    <string name="view_reviews"><u>View all reviews</u></string>
+    <string name="no_homepage">No homepage</string>
+    
+
+    <string name="error_player">There was an error initializing the YouTubePlayer (%1$s)</string>
 
 </resources>

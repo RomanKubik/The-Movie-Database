@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/spacing_small">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/backdrop_size"
+        android:id="@+id/iv_video_poster"/>
+    <ImageView
+        android:layout_width="@dimen/button_height_super_tall"
+        android:layout_height="@dimen/button_height_super_tall"
+        android:src="@drawable/ic_play_circle_filled"
+        android:scaleType="fitCenter"
+        android:layout_centerInParent="true"
+        android:alpha=".7"/>
+</RelativeLayout>

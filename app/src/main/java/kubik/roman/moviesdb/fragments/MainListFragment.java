@@ -1,49 +1,85 @@
 package kubik.roman.moviesdb.fragments;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
 
-import kubik.roman.moviesdb.HttpConnectionManager;
+import kubik.roman.moviesdb.GsonGetRequest;
 import kubik.roman.moviesdb.R;
-import kubik.roman.moviesdb.adapters.MovieListAdapter;
+import kubik.roman.moviesdb.TmdbUrlBuilder;
+import kubik.roman.moviesdb.activities.MovieDetailsActivity;
+import kubik.roman.moviesdb.adapters.MoviesListAdapter;
 import kubik.roman.moviesdb.models.Genre;
-import kubik.roman.moviesdb.models.Movie;
-import kubik.roman.moviesdb.models.MovieResponse;
-import kubik.roman.moviesdb.models.MoviesList;
+import kubik.roman.moviesdb.models.movies_list.EndlessOnScrollListener;
+import kubik.roman.moviesdb.models.movies_list.GenresList;
+import kubik.roman.moviesdb.models.movies_list.Movie;
+import kubik.roman.moviesdb.models.movies_list.MoviesList;
 
 /**
- * Fragment for displaying main list
+ * Fragment for displaying list of something
  */
-public class MainListFragment extends BaseFragment implements HttpConnectionManager.OnRespondListener, AdapterView.OnItemClickListener {
+public class MainListFragment extends BaseFragment implements Response.ErrorListener {
 
-    public static final String REQUESTED_GENRE_LIST = "genre/movie/list";
-    public static final String GENRES = "genres";
+    private static final String TYPE_TAG = "type";
+    //Type of movies list 0- popular, 1- top rated, 2- upcoming, 3- now playing
+    private int mType = 0;
 
-    private HttpConnectionManager mHttpConnectionManager;
     private MoviesList mMoviesList;
-    private ArrayList<Genre> mGenresList;
 
-    private Context mContext;
+    private MoviesListAdapter mMoviesListAdapter;
+
     private View view;
+
+    private RequestQueue queue;
+
+    private List<Movie> mMovies = new ArrayList<>();
+    private List<Genre> mGenres = new ArrayList<>();
+
+    private int mLastPage = 1;
+    private boolean isInitialized = false;
+
+    public static MainListFragment newInstance(int type) {
+        MainListFragment fragment = new MainListFragment();
+
+        Bundle args = new Bundle();
+        args.putInt(TYPE_TAG, type);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        queue = Volley.newRequestQueue(getBaseActivity());
+        mType = getArguments().getInt(TYPE_TAG);
+
+        getBaseActivity().mToolbar.setTitle(R.string.app_name);
+    }
 
     @Nullable
     @Override
@@ -51,92 +87,132 @@ public class MainListFragment extends BaseFragment implements HttpConnectionMana
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.main_list_fragment, null);
-        mContext = container.getContext();
-        try {
-            mHttpConnectionManager = new HttpConnectionManager(mContext);
-            mHttpConnectionManager.setOnRespondListener(this);
-
-            getGenresList();
-            showMoviesList();
-        } catch (ExecutionException | InterruptedException | JSONException e) {
-            Log.d("MainFragment", e.toString());
-        }
+        getGenresList();
+        getMoviesList(mLastPage);
         return view;
     }
 
-    public void thisWillBeCalledOnBackPressed() {
-        showToast("This method is invoked on back action of USER");
+    private void initializeList() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_title);
+        mMoviesListAdapter = new MoviesListAdapter(mMovies, mGenres, getActivity());
+        recyclerView.setAdapter(mMoviesListAdapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        mMoviesListAdapter.SetOnItemClickListener(new MoviesListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Movie movie = mMovies.get(position);
+                Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
+                intent.putExtra("movie_id",movie.getId());
+                startActivity(intent);
+//                MovieDetailsPagerFragment fragment = MovieDetailsPagerFragment.
+//                        newInstance(movie.getId());
+                //navigateTo(fragment, true);
+            }
+        });
+        recyclerView.setOnScrollListener(new EndlessOnScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int currentPage) {
+                getMoviesList(mLastPage + 1);
+            }
+        });
     }
 
-    private void getGenresList() throws InterruptedException, ExecutionException, JSONException {
+    private void getGenresList() {
+        GsonGetRequest<GenresList> request = new GsonGetRequest<>(TmdbUrlBuilder.getGenresListUrl(),
+                GenresList.class, null, new Response.Listener<GenresList>() {
+            @Override
+            public void onResponse(GenresList response) {
+                mGenres = response.getGenres();
+                /*if (mMoviesListAdapter != null)
+                    mMoviesListAdapter.notifyDataSetChanged();*/
+            }
+        }, this);
 
-        mGenresList = new ArrayList<>();
-
-        mHttpConnectionManager.GET(REQUESTED_GENRE_LIST);
+        queue.add(request);
     }
 
-    private void setGenresList(String jsonStr) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonStr);
-        JSONArray jsonArray = jsonObject.getJSONArray(GENRES);
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            Genre genre = new Genre();
-
-            genre.setGenreFromJson(jsonArray.getString(i));
-            mGenresList.add(genre);
-        }
-
-    }
-
-    private void showMoviesList() throws ExecutionException, InterruptedException, JSONException {
-
-        mMoviesList = new MoviesList();
-
-        mHttpConnectionManager.GET(MoviesList.REQUESTED);
-
-        showList();
-
-    }
-
-    private void showList() {
-        MovieListAdapter adapter = new MovieListAdapter(mMoviesList, mGenresList, mContext);
-        ListView listView = (ListView) view.findViewById(R.id.lvTitle);
-        listView.setOnItemClickListener(this);
-        listView.setAdapter(adapter);
-    }
-
-
-    @Override
-    public void onRespond(String respond, String requested) throws JSONException,
-            ExecutionException, InterruptedException {
-
-        switch (requested) {
-            case MoviesList.REQUESTED:
-                mMoviesList.setMoviesListFromJson(respond);
+    private void getMoviesList(int currentPage) {
+        String url;
+        Log.d(TYPE_TAG, String.valueOf(mType));
+        switch (mType) {
+            case 0:
+                url = TmdbUrlBuilder.getMoviesListPopularUrl(currentPage);
                 break;
-            case REQUESTED_GENRE_LIST:
-                setGenresList(respond);
+            case 1:
+                url = TmdbUrlBuilder.getMoviesListTopRatedUrl(currentPage);
+                break;
+            case 2:
+                url = TmdbUrlBuilder.getMoviesListUpcomingUrl(currentPage);
+                break;
+            case 3:
+                url = TmdbUrlBuilder.getMoviesListNowPlayingUrl(currentPage);
                 break;
             default:
+                url = TmdbUrlBuilder.getMoviesListPopularUrl(currentPage);
                 break;
         }
+        GsonGetRequest<MoviesList> request = new GsonGetRequest<>(url, MoviesList.class, null,
+                new Response.Listener<MoviesList>() {
+                    @Override
+                    public void onResponse(MoviesList response) {
+                        mMoviesList = response;
+                        mLastPage = mMoviesList.getPage();
+                        updateListView(mMoviesList.getResults());
+                    }
+                }, this);
+        queue.add(request);
+    }
 
+    private void updateListView(List<Movie> movies) {
+        mMovies.addAll(movies);
+        if (!isInitialized) {
+            initializeList();
+            isInitialized = true;
+        }
+        mMoviesListAdapter.notifyDataSetChanged();
     }
 
 
     @Override
-    public void onError(String error) {
-        //Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
-        showToast(error);
+    public void onErrorResponse(VolleyError error) {
+        String json;
+
+        if(error instanceof NoConnectionError) {
+            json = "No internet Access, Check your internet connection.";
+            Toast.makeText(getActivity(), json, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        NetworkResponse response = error.networkResponse;
+        if (response != null && response.data != null) {
+            switch (response.statusCode) {
+                case 200:
+                    break;
+                default:
+                    json = new String(response.data);
+                    json = trimMessage(json, "status_message");
+                    if (json != null) showToast(json);
+                    break;
+            }
+        }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Movie movie = (Movie) parent.getItemAtPosition(position);
-        Log.d("MOVIE :: ", movie.toString());
+    public String trimMessage(String json, String key) {
+        String trimmedString = null;
 
-        MovieDetailsFragment movieDetailsFragment = MovieDetailsFragment.newInstance(movie.getId());
-        navigateTo(movieDetailsFragment);
+        try {
+            JSONObject obj = new JSONObject(json);
+            trimmedString = obj.getString(key);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return trimmedString;
     }
+
 
 }

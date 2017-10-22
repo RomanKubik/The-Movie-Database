@@ -2,6 +2,7 @@
   <dictionary name="roman">
     <words>
       <w>imdb</w>
+      <w>tagline</w>
     </words>
   </dictionary>
 </component>
